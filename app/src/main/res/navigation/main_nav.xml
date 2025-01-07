@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav"
+    app:startDestination="@id/mainScreen">
+
+    <fragment
+        android:id="@+id/mainScreen"
+        android:name="com.idyllic.yandexmaps.ui.screen.main.MainScreen"
+        android:label="MainScreen"
+        tools:layout="@layout/screen_main">
+        <action
+            android:id="@+id/action_mainScreen_to_otherScreen"
+            app:destination="@id/otherScreen" />
+        <action
+            android:id="@+id/action_mainScreen_to_linesScreen"
+            app:destination="@id/linesScreen" />
+    </fragment>
+    <fragment
+        android:id="@+id/otherScreen"
+        android:name="com.idyllic.yandexmaps.ui.screen.other.OtherScreen"
+        android:label="OtherScreen"
+        tools:layout="@layout/screen_other" />
+    <fragment
+        android:id="@+id/checkNetworkScreen"
+        android:name="com.idyllic.yandexmaps.ui.screen.status.network.CheckNetworkScreen"
+        android:label="CheckNetworkScreen"
+        tools:layout="@layout/screen_check_network">
+        <deepLink app:uri="myapp-app://checkNetworkScreen" />
+    </fragment>
+    <fragment
+        android:id="@+id/linesScreen"
+        android:name="com.idyllic.yandexmaps.ui.screen.menu.ui.lines.LinesScreen"
+        android:label="LinesScreen"
+        tools:layout="@layout/screen_lines" />
+</navigation>

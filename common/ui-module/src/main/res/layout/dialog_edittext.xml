@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shape_radius_12"
+    android:theme="@style/Theme.Idyllic">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/text_title"
+        style="@style/TextAppearance.MaterialComponents.Subtitle2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_16"
+        android:gravity="center"
+        android:text="@string/lbl_info"
+        android:textColor="@color/colorText"
+        android:textSize="22sp" />
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/text_edit"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_below="@id/text_title"
+        android:layout_marginHorizontal="@dimen/dp_24"
+        android:layout_marginTop="@dimen/dp_8"
+        android:background="@drawable/edit_text_bac"
+        android:gravity="center"
+        android:inputType="text"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textColor="@color/colorText"
+        tools:text="Something went wrong, try again later." />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_close"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text_edit"
+        android:layout_marginHorizontal="@dimen/dp_16"
+        android:layout_marginTop="@dimen/dp_16"
+        android:layout_marginBottom="@dimen/dp_16"
+        app:cardBackgroundColor="@color/color_screen_bac"
+        app:cardElevation="@dimen/dp_0">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/text_btn"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/image_icon_top"
+            android:layout_marginHorizontal="@dimen/dp_16"
+            android:layout_marginVertical="@dimen/dp_16"
+            android:gravity="center"
+            android:text="@string/lbl_accept"
+            android:textColor="@color/purple_500"
+            android:textSize="@dimen/dp_16" />
+    </com.google.android.material.card.MaterialCardView>
+</RelativeLayout>

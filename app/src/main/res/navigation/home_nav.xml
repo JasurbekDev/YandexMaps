@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/home_nav"
+    app:startDestination="@id/bookmarksScreen">
+
+    <fragment
+        android:id="@+id/bookmarksScreen"
+        android:name="com.idyllic.yandexmaps.ui.screen.home.BookmarksScreen"
+        android:label="HomeScreen"
+        tools:layout="@layout/screen_bookmarks" />
+    <fragment
+        android:id="@+id/mapScreen"
+        android:name="com.idyllic.yandexmaps.ui.screen.menu.ui.MenuScreen"
+        android:label="MenuScreen"
+        tools:layout="@layout/screen_menu" />
+    <fragment
+        android:id="@+id/profileScreen"
+        android:name="com.idyllic.yandexmaps.ui.screen.account.AccountScreen"
+        android:label="AccountScreen"
+        tools:layout="@layout/screen_account" />
+</navigation>

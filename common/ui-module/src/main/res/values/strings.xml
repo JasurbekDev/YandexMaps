@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lbl_info">Info</string>
+    <string name="lbl_close">Close</string>
+    <string name="lbl_accept">Accept</string>
+    <string name="lbl_attention">Attention</string>
+    <string name="lbl_yes">Yes</string>
+    <string name="lbl_no">No</string>
+    <string name="lbl_thank_you">Thank you</string>
+    <string name="lbl_please_wait">Please wait!</string>
+    <string name="lbl_feature_in_development">The functionality is under development. Will be available soon</string>
+    <string name="lbl_try_again_later">Failed to connect to the server… Please try again later</string>
+    <string name="lbl_home">Home</string>
+    <string name="lbl_menu">Menu</string>
+    <string name="lbl_account">Account</string>
+    <string name="lbl_dev">DEV</string>
+    <string name="lbl_repeat_check_network">Repeat</string>
+    <string name="lbl_no_internet_connection">No internet connection</string>
+    <string name="lbl_check_network_title">Please check your internet connection and try again later.</string>
+
+    <string name="lbl_bookmarks">Bookmarks</string>
+    <string name="lbl_map">Map</string>
+    <string name="lbl_profile">Profile</string>
+</resources>
