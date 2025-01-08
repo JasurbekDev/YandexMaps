@@ -12,15 +12,15 @@ import com.idyllic.core_api.model.UserDto
 import com.idyllic.core_api.usecase.SecureStorageManager
 import com.idyllic.yandexmaps.R
 import com.idyllic.yandexmaps.base.BaseMainFragment
-import com.idyllic.yandexmaps.databinding.ScreenMenuBinding
+import com.idyllic.yandexmaps.databinding.ScreenMapBinding
 import com.idyllic.yandexmaps.ui.screen.main.MainScreenDirections
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MenuScreen : BaseMainFragment(R.layout.screen_menu), View.OnClickListener {
+class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener {
     override val viewModel: MenuScreenVM by viewModels()
-    private val binding by viewBinding(ScreenMenuBinding::bind)
+    private val binding by viewBinding(ScreenMapBinding::bind)
     private var mainNavigation: NavController? = null
 
     @Inject

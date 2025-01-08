@@ -12,12 +12,12 @@
         tools:layout="@layout/screen_bookmarks" />
     <fragment
         android:id="@+id/mapScreen"
-        android:name="com.idyllic.yandexmaps.ui.screen.menu.ui.MenuScreen"
+        android:name="com.idyllic.yandexmaps.ui.screen.menu.ui.MapScreen"
         android:label="MenuScreen"
-        tools:layout="@layout/screen_menu" />
+        tools:layout="@layout/screen_map" />
     <fragment
         android:id="@+id/profileScreen"
-        android:name="com.idyllic.yandexmaps.ui.screen.account.AccountScreen"
+        android:name="com.idyllic.yandexmaps.ui.screen.account.ProfileScreen"
         android:label="AccountScreen"
-        tools:layout="@layout/screen_account" />
+        tools:layout="@layout/screen_profile" />
 </navigation>
