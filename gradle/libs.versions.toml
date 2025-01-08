@@ -28,6 +28,7 @@ chucker = "4.0.0"
 org-jetbrains-kotlin-jvm = "2.1.0"
 security-crypto = "1.1.0-alpha06"
 kotlinx-coroutines-core = "1.8.0"
+yandex-maps = "4.10.1-full"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -63,6 +64,7 @@ gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 chucker = { group = "com.github.chuckerteam.chucker", name = "library", version.ref = "chucker" }
 androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "security-crypto" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines-core" }
+yandex-maps = { group = "com.yandex.android", name = "maps.mobile", version.ref = "yandex-maps" }
 
 [bundles]
 common-ui-implementation = [

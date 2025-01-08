@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
@@ -6,19 +8,31 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+val mapkitApiKey: String by extra {
+    loadMapkitApiKey()
+}
+
+fun loadMapkitApiKey(): String {
+    val properties = Properties()
+    project.rootProject.file("./local.properties").inputStream().use { properties.load(it) }
+    return properties.getProperty("MAPKIT_API_KEY", "")
+}
+
 android {
     namespace = "com.idyllic.yandexmaps"
     compileSdk = 35
 
     defaultConfig {
         applicationId = "com.idyllic.yandexmaps"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         setProperty("archivesBaseName", "MyApp-${versionName}")
+
+        buildConfigField("String", "MAPKIT_API_KEY", "\"${mapkitApiKey}\"")
     }
 
     buildTypes {
@@ -68,4 +82,7 @@ dependencies {
 
     // Paging
     implementation(libs.androidx.paging.runtime.ktx)
+
+    // Yandex.Maps
+    implementation(libs.yandex.maps)
 }

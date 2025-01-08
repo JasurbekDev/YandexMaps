@@ -1,18 +1,14 @@
-package com.idyllic.yandexmaps.ui.screen.home
+package com.idyllic.yandexmaps.ui.screen.bookmarks
 
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import by.kirich1409.viewbindingdelegate.viewBinding
-import com.idyllic.common.util.safeNavigate
-import com.idyllic.core_api.model.ProductDto
 import com.idyllic.yandexmaps.R
 import com.idyllic.yandexmaps.base.BaseMainFragment
 import com.idyllic.yandexmaps.databinding.ScreenBookmarksBinding
-import com.idyllic.yandexmaps.ui.screen.main.MainScreenDirections
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

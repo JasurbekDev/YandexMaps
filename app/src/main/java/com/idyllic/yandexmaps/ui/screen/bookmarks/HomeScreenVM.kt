@@ -1,4 +1,4 @@
-package com.idyllic.yandexmaps.ui.screen.home
+package com.idyllic.yandexmaps.ui.screen.bookmarks
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
