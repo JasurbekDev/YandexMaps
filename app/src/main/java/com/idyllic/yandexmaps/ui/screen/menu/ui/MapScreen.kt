@@ -6,17 +6,19 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import by.kirich1409.viewbindingdelegate.viewBinding
-import com.idyllic.core.ktx.timber
+import com.idyllic.core.ktx.toast
+import com.idyllic.core_api.model.LineDto
 import com.idyllic.yandexmaps.R
 import com.idyllic.yandexmaps.base.BaseMainFragment
 import com.idyllic.yandexmaps.databinding.ScreenMapBinding
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
-import com.yandex.mapkit.map.CameraListener
 import com.yandex.mapkit.map.CameraPosition
-import com.yandex.mapkit.map.CameraUpdateReason
 import com.yandex.mapkit.map.Map
+import com.yandex.mapkit.map.MapObjectTapListener
+import com.yandex.runtime.image.ImageProvider
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener {
@@ -24,6 +26,17 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener {
     private val binding by viewBinding(ScreenMapBinding::bind)
     private var mainNavigation: NavController? = null
     private var map: Map? = null
+
+    private val placeMarkTapListener = MapObjectTapListener { mapObject, point ->
+        try {
+            val userCarDto = mapObject.userData as LineDto.UserCarDto
+//            toast("Tapped the point (${point.longitude}, ${point.latitude})")
+            toast("User id ${userCarDto.id}")
+        } catch (e: ClassCastException) {
+            Timber.e(e)
+        }
+        true
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +70,19 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener {
 //        }
 //
 //        map?.addCameraListener(cameraListener)
+
+        val imageProvider =
+            ImageProvider.fromResource(context, com.idyllic.ui_module.R.drawable.ic_pin)
+        val placeMark = map?.mapObjects?.addPlacemark()?.apply {
+            geometry = Point(41.312046, 69.279947)
+            setIcon(imageProvider)
+        }
+
+        placeMark?.isDraggable = true
+        placeMark?.userData = LineDto.UserCarDto(123)
+
+
+        placeMark?.addTapListener(placeMarkTapListener)
     }
 
     override fun onStart() {
