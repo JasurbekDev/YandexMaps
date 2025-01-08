@@ -1,11 +1,13 @@
 package com.idyllic.yandexmaps.ui.screen.menu.ui
 
+import android.graphics.PointF
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import by.kirich1409.viewbindingdelegate.viewBinding
+import com.idyllic.core.ktx.timber
 import com.idyllic.core.ktx.toast
 import com.idyllic.core_api.model.LineDto
 import com.idyllic.yandexmaps.R
@@ -13,19 +15,26 @@ import com.idyllic.yandexmaps.base.BaseMainFragment
 import com.idyllic.yandexmaps.databinding.ScreenMapBinding
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
+import com.yandex.mapkit.map.CameraListener
 import com.yandex.mapkit.map.CameraPosition
+import com.yandex.mapkit.map.CameraUpdateReason
+import com.yandex.mapkit.map.IconStyle
 import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.map.MapObjectTapListener
+import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.runtime.image.ImageProvider
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
 @AndroidEntryPoint
-class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener {
+class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, CameraListener {
     override val viewModel: MenuScreenVM by viewModels()
     private val binding by viewBinding(ScreenMapBinding::bind)
     private var mainNavigation: NavController? = null
     private var map: Map? = null
+    private var placeMark: PlacemarkMapObject? = null
+
+    private var mapCenter: Point? = null
 
     private val placeMarkTapListener = MapObjectTapListener { mapObject, point ->
         try {
@@ -48,6 +57,9 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener {
         mainNavigation = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
 
         map = binding.mapView.mapWindow.map
+
+        map?.addCameraListener(this)
+        mapCenter = map?.cameraPosition?.target
 
         map?.move(
             CameraPosition(
@@ -73,16 +85,51 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener {
 
         val imageProvider =
             ImageProvider.fromResource(context, com.idyllic.ui_module.R.drawable.ic_pin)
-        val placeMark = map?.mapObjects?.addPlacemark()?.apply {
+        placeMark = map?.mapObjects?.addPlacemark()?.apply {
             geometry = Point(41.312046, 69.279947)
             setIcon(imageProvider)
         }
 
+//        val initialPosition = map?.cameraPosition?.target
+//        initialPosition?.let {
+//            addPlaceMarkAtPosition(initialPosition)
+//        }
+
         placeMark?.isDraggable = true
         placeMark?.userData = LineDto.UserCarDto(123)
-
+        placeMark?.setIconStyle(
+            IconStyle().apply {
+                anchor = PointF(0.5f, 0.95f)
+            }
+        )
 
         placeMark?.addTapListener(placeMarkTapListener)
+    }
+
+    private fun addPlaceMarkAtPosition(position: Point) {
+        val imageProvider =
+            ImageProvider.fromResource(context, com.idyllic.ui_module.R.drawable.ic_pin)
+        val mapObjects = map?.mapObjects
+        placeMark = mapObjects?.addPlacemark()?.apply {
+            geometry = position
+            setIcon(imageProvider)
+        }
+    }
+
+    override fun onCameraPositionChanged(
+        map: Map,
+        cameraPosition: CameraPosition,
+        cameraUpdateReason: CameraUpdateReason,
+        finished: Boolean
+    ) {
+        if (finished) {
+            mapCenter = cameraPosition.target
+            timber("MAPCENTERRR: ${mapCenter?.latitude} ${mapCenter?.longitude}")
+        }
+    }
+
+    private fun updatePinPosition(position: Point) {
+        placeMark?.geometry = position
     }
 
     override fun onStart() {
