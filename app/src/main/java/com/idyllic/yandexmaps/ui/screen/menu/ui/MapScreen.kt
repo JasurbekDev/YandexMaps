@@ -18,6 +18,7 @@ import com.idyllic.core_api.model.LineDto
 import com.idyllic.yandexmaps.R
 import com.idyllic.yandexmaps.base.BaseMainFragment
 import com.idyllic.yandexmaps.databinding.ScreenMapBinding
+import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraListener
@@ -26,6 +27,7 @@ import com.yandex.mapkit.map.CameraUpdateReason
 import com.yandex.mapkit.map.IconStyle
 import com.yandex.mapkit.map.InputListener
 import com.yandex.mapkit.map.Map
+import com.yandex.mapkit.map.Map.CameraCallback
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.runtime.image.ImageProvider
@@ -65,8 +67,28 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
             disableCenterPin()
             clearAllPins(map)
             createPin(map, point, placeMarkTapListener)
+
+            map.move(
+                CameraPosition(
+                    /* target */ point,
+                    /* zoom */ 16.0f,
+                    /* azimuth */ 16.0f,
+                    /* tilt */ 0.0f
+                ),
+                Animation(Animation.Type.LINEAR, 0.5f),
+                cameraCallback
+            )
         }
 
+    }
+
+    val cameraCallback = object : CameraCallback {
+        override fun onMoveFinished(isFinished: Boolean) {
+            if (isFinished) {
+                mapCenter = map?.cameraPosition?.target
+                timber("MAPCENTERRR: ${mapCenter?.latitude} ${mapCenter?.longitude}")
+            }
+        }
     }
 
     private fun disableCenterPin() {
