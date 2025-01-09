@@ -35,7 +35,7 @@ import kotlin.getValue
 
 @AndroidEntryPoint
 class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, CameraListener {
-    override val viewModel: MenuScreenVM by viewModels()
+    override val viewModel: MapScreenVM by viewModels()
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private val binding by viewBinding(ScreenMapBinding::bind)
     private var mainNavigation: NavController? = null
