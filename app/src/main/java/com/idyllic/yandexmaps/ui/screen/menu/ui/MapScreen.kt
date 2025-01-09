@@ -1,6 +1,5 @@
 package com.idyllic.yandexmaps.ui.screen.menu.ui
 
-import android.content.Context
 import android.graphics.PointF
 import android.os.Bundle
 import android.view.View
@@ -8,6 +7,8 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import by.kirich1409.viewbindingdelegate.viewBinding
+import com.idyllic.core.ktx.backPressedScreen
+import com.idyllic.core.ktx.gone
 import com.idyllic.core.ktx.timber
 import com.idyllic.core.ktx.toast
 import com.idyllic.core_api.model.LineDto
@@ -56,15 +57,37 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
 
         override fun onMapLongTap(map: Map, point: Point) {
             timber("${point.latitude} ${point.longitude}")
-//            placeMark?.remove()
-            val imageProvider =
-                ImageProvider.fromResource(context, com.idyllic.ui_module.R.drawable.ic_pin)
-            placeMark = map?.mapObjects?.addPlacemark()?.apply {
-                geometry = Point(41.312046, 69.279947)
-                setIcon(imageProvider)
-            }
-            placeMark?.geometry = point
+            disableCenterPin()
+            clearAllPins(map)
+            createPin(map, point, placeMarkTapListener)
         }
+
+    }
+
+    private fun disableCenterPin() {
+
+    }
+
+    private fun createPin(map: Map?, point: Point, listener: MapObjectTapListener) {
+        val imageProvider =
+            ImageProvider.fromResource(context, com.idyllic.ui_module.R.drawable.ic_pin)
+        placeMark = map?.mapObjects?.addPlacemark()?.apply {
+            geometry = point
+            setIcon(imageProvider)
+        }
+        placeMark?.isDraggable = true
+        placeMark?.userData = LineDto.UserCarDto(123)
+        placeMark?.setIconStyle(
+            IconStyle().apply {
+                anchor = PointF(0.5f, 0.95f)
+            }
+        )
+        placeMark?.addTapListener(listener)
+    }
+
+    private fun clearAllPins(map: Map?) {
+        map?.mapObjects?.clear()
+        placeMark = null
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,15 +132,9 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
 //            addPlaceMarkAtPosition(initialPosition)
 //        }
 
-        placeMark?.isDraggable = true
-        placeMark?.userData = LineDto.UserCarDto(123)
-        placeMark?.setIconStyle(
-            IconStyle().apply {
-                anchor = PointF(0.5f, 0.95f)
-            }
-        )
-
-        placeMark?.addTapListener(placeMarkTapListener)
+//        backPressedScreen(true) {
+//            activity?.onBackPressedDispatcher?.onBackPressed()
+//        }
     }
 
     private fun addPlaceMarkAtPosition(position: Point) {
@@ -136,7 +153,7 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         cameraUpdateReason: CameraUpdateReason,
         finished: Boolean
     ) {
-        if (finished) {
+        if (finished && placeMark == null) {
             mapCenter = cameraPosition.target
             timber("MAPCENTERRR: ${mapCenter?.latitude} ${mapCenter?.longitude}")
         }
