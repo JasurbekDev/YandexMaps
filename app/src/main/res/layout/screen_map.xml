@@ -27,6 +27,7 @@
         android:id="@+id/image_pin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="@string/lbl_pin"
         android:src="@drawable/ic_pin"
         app:layout_constraintBottom_toBottomOf="@id/view_center"
         app:layout_constraintEnd_toEndOf="parent"

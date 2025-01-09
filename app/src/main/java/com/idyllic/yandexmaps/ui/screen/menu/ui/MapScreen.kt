@@ -1,5 +1,6 @@
 package com.idyllic.yandexmaps.ui.screen.menu.ui
 
+import android.content.Context
 import android.graphics.PointF
 import android.os.Bundle
 import android.view.View
@@ -19,6 +20,7 @@ import com.yandex.mapkit.map.CameraListener
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.CameraUpdateReason
 import com.yandex.mapkit.map.IconStyle
+import com.yandex.mapkit.map.InputListener
 import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.map.PlacemarkMapObject
@@ -47,6 +49,24 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         true
     }
 
+    val inputListener = object : InputListener {
+        override fun onMapTap(map: Map, point: Point) {
+
+        }
+
+        override fun onMapLongTap(map: Map, point: Point) {
+            timber("${point.latitude} ${point.longitude}")
+//            placeMark?.remove()
+            val imageProvider =
+                ImageProvider.fromResource(context, com.idyllic.ui_module.R.drawable.ic_pin)
+            placeMark = map?.mapObjects?.addPlacemark()?.apply {
+                geometry = Point(41.312046, 69.279947)
+                setIcon(imageProvider)
+            }
+            placeMark?.geometry = point
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MapKitFactory.initialize(context)
@@ -59,6 +79,7 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         map = binding.mapView.mapWindow.map
 
         map?.addCameraListener(this)
+        map?.addInputListener(inputListener)
         mapCenter = map?.cameraPosition?.target
 
         map?.move(
@@ -82,13 +103,6 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
 //        }
 //
 //        map?.addCameraListener(cameraListener)
-
-        val imageProvider =
-            ImageProvider.fromResource(context, com.idyllic.ui_module.R.drawable.ic_pin)
-        placeMark = map?.mapObjects?.addPlacemark()?.apply {
-            geometry = Point(41.312046, 69.279947)
-            setIcon(imageProvider)
-        }
 
 //        val initialPosition = map?.cameraPosition?.target
 //        initialPosition?.let {
@@ -143,6 +157,18 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         MapKitFactory.getInstance().onStop()
         super.onStop()
     }
+
+//    override fun onDestroyView() {
+//        binding.mapView.onStop()
+//        MapKitFactory.getInstance().onStop()
+//        super.onDestroyView()
+//    }
+
+//    override fun onDestroy() {
+//        binding.mapView.onStop()
+//        MapKitFactory.getInstance().onStop()
+//        super.onDestroy()
+//    }
 
     override fun onClick(v: View?) {
         when (v?.id) {
