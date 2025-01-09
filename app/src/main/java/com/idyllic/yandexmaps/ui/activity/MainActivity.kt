@@ -5,9 +5,11 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.idyllic.common.base.BaseActivity
+import com.idyllic.common.vm.SharedViewModel
 import com.idyllic.core.ktx.visible
 import com.idyllic.yandexmaps.BuildConfig
 import com.idyllic.yandexmaps.R
@@ -19,6 +21,7 @@ import java.util.Locale
 class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainActivityVM by viewModels()
+    private val sharedViewModel: SharedViewModel by viewModels()
     private var navController: NavController? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,6 +32,13 @@ class MainActivity : BaseActivity() {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
+
+        sharedViewModel.finishActivityLiveData.observe(this@MainActivity, finishActivityObserver)
+    }
+
+    private val finishActivityObserver = Observer<Unit> {
+//        onBackPressedDispatcher.onBackPressed()
+        moveTaskToBack(true)
     }
 
     override fun changeMode(mode: Boolean) {

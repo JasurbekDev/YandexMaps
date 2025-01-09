@@ -3,14 +3,17 @@ package com.idyllic.yandexmaps.ui.screen.menu.ui
 import android.graphics.PointF
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import by.kirich1409.viewbindingdelegate.viewBinding
+import com.idyllic.common.vm.SharedViewModel
 import com.idyllic.core.ktx.backPressedScreen
 import com.idyllic.core.ktx.gone
 import com.idyllic.core.ktx.timber
 import com.idyllic.core.ktx.toast
+import com.idyllic.core.ktx.visible
 import com.idyllic.core_api.model.LineDto
 import com.idyllic.yandexmaps.R
 import com.idyllic.yandexmaps.base.BaseMainFragment
@@ -28,10 +31,12 @@ import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.runtime.image.ImageProvider
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
+import kotlin.getValue
 
 @AndroidEntryPoint
 class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, CameraListener {
     override val viewModel: MenuScreenVM by viewModels()
+    private val sharedViewModel: SharedViewModel by activityViewModels()
     private val binding by viewBinding(ScreenMapBinding::bind)
     private var mainNavigation: NavController? = null
     private var map: Map? = null
@@ -65,7 +70,11 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
     }
 
     private fun disableCenterPin() {
+        binding.imagePin.gone()
+    }
 
+    private fun enableCenterPin() {
+        binding.imagePin.visible()
     }
 
     private fun createPin(map: Map?, point: Point, listener: MapObjectTapListener) {
@@ -114,6 +123,10 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
             )
         )
 
+        placeMark?.let {
+            createPin(map, it.geometry, placeMarkTapListener)
+        }
+
 //        val cameraListener = object : CameraListener {
 //            override fun onCameraPositionChanged(
 //                p0: Map,
@@ -132,9 +145,17 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
 //            addPlaceMarkAtPosition(initialPosition)
 //        }
 
-//        backPressedScreen(true) {
-//            activity?.onBackPressedDispatcher?.onBackPressed()
-//        }
+        backPressedScreen(true) {
+            timber("PLACEMARK: $placeMark")
+            if (placeMark == null) {
+                requireActivity().moveTaskToBack(true)
+//                sharedViewModel.finishActivity()
+//                activity?.onBackPressedDispatcher?.onBackPressed()
+            } else {
+                clearAllPins(map)
+                enableCenterPin()
+            }
+        }
     }
 
     private fun addPlaceMarkAtPosition(position: Point) {
