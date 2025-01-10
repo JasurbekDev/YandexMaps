@@ -5,6 +5,8 @@
     android:id="@+id/main_nav"
     app:startDestination="@id/mainScreen">
 
+    <include app:graph="@navigation/home_nav" />
+
     <fragment
         android:id="@+id/mainScreen"
         android:name="com.idyllic.yandexmaps.ui.screen.main.MainScreen"

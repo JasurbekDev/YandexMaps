@@ -3,12 +3,10 @@ package com.idyllic.yandexmaps.ui.screen.menu.ui
 import android.graphics.PointF
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import by.kirich1409.viewbindingdelegate.viewBinding
-import com.idyllic.common.vm.SharedViewModel
 import com.idyllic.core.ktx.backPressedScreen
 import com.idyllic.core.ktx.gone
 import com.idyllic.core.ktx.timber
@@ -21,6 +19,8 @@ import com.idyllic.yandexmaps.databinding.ScreenMapBinding
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
+import com.yandex.mapkit.layers.GeoObjectTapEvent
+import com.yandex.mapkit.layers.GeoObjectTapListener
 import com.yandex.mapkit.map.CameraListener
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.CameraUpdateReason
@@ -38,13 +38,10 @@ import kotlin.getValue
 @AndroidEntryPoint
 class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, CameraListener {
     override val viewModel: MapScreenVM by viewModels()
-    private val sharedViewModel: SharedViewModel by activityViewModels()
     private val binding by viewBinding(ScreenMapBinding::bind)
     private var mainNavigation: NavController? = null
     private var map: Map? = null
     private var placeMark: PlacemarkMapObject? = null
-
-    private var mapCenter: Point? = null
 
     private val placeMarkTapListener = MapObjectTapListener { mapObject, point ->
         try {
@@ -70,12 +67,12 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
 
             map.move(
                 CameraPosition(
-                    /* target */ point,
-                    /* zoom */ 16.0f,
-                    /* azimuth */ 16.0f,
-                    /* tilt */ 0.0f
+                    point,
+                    map.cameraPosition.zoom,
+                    viewModel.azimuth ?: 16.0f,
+                    viewModel.tilt ?: 0.0f
                 ),
-                Animation(Animation.Type.LINEAR, 0.5f),
+                Animation(Animation.Type.SMOOTH, 0.5f),
                 cameraCallback
             )
         }
@@ -85,10 +82,57 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
     val cameraCallback = object : CameraCallback {
         override fun onMoveFinished(isFinished: Boolean) {
             if (isFinished) {
-                mapCenter = map?.cameraPosition?.target
-                timber("MAPCENTERRR: ${mapCenter?.latitude} ${mapCenter?.longitude}")
+
             }
         }
+    }
+
+    val geoObjectTapListener = object : GeoObjectTapListener {
+        override fun onObjectTap(event: GeoObjectTapEvent): Boolean {
+            timber("onObjectTap: ${event.geoObject.name}")
+            return true
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        MapKitFactory.initialize(context)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        mainNavigation = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
+
+        initMap()
+
+        viewModel.placeMarkGeometry?.let {
+            createPin(map, it, placeMarkTapListener)
+            disableCenterPin()
+        }
+
+        backPressedScreen(true) {
+            if (placeMark == null) {
+                requireActivity().moveTaskToBack(true)
+            } else {
+                clearAllPins(map)
+                enableCenterPin()
+            }
+        }
+    }
+
+    private fun initMap() {
+        map = binding.mapView.mapWindow.map
+        map?.addCameraListener(this)
+        map?.addInputListener(inputListener)
+        map?.addTapListener(geoObjectTapListener)
+        map?.move(
+            CameraPosition(
+                viewModel.mapCenter ?: Point(41.312046, 69.279947),
+                viewModel.zoom ?: 16.0f,
+                viewModel.azimuth ?: 16.0f,
+                viewModel.tilt ?: 0.0f
+            )
+        )
     }
 
     private fun disableCenterPin() {
@@ -114,70 +158,14 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
             }
         )
         placeMark?.addTapListener(listener)
+        placeMark?.let { pm ->
+            viewModel.setPlaceMarkGeometry(pm.geometry)
+        }
     }
 
     private fun clearAllPins(map: Map?) {
         map?.mapObjects?.clear()
         placeMark = null
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        MapKitFactory.initialize(context)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        mainNavigation = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
-
-        map = binding.mapView.mapWindow.map
-
-        map?.addCameraListener(this)
-        map?.addInputListener(inputListener)
-        mapCenter = map?.cameraPosition?.target
-
-        map?.move(
-            CameraPosition(
-                Point(41.312046, 69.279947),
-                /* zoom = */ 16.0f,
-                /* azimuth = */ 16.0f,
-                /* tilt = */ 0.0f
-            )
-        )
-
-        placeMark?.let {
-            createPin(map, it.geometry, placeMarkTapListener)
-        }
-
-//        val cameraListener = object : CameraListener {
-//            override fun onCameraPositionChanged(
-//                p0: Map,
-//                p1: CameraPosition,
-//                p2: CameraUpdateReason,
-//                p3: Boolean
-//            ) {
-//                timber("CHANGED!")
-//            }
-//        }
-//
-//        map?.addCameraListener(cameraListener)
-
-//        val initialPosition = map?.cameraPosition?.target
-//        initialPosition?.let {
-//            addPlaceMarkAtPosition(initialPosition)
-//        }
-
-        backPressedScreen(true) {
-            timber("PLACEMARK: $placeMark")
-            if (placeMark == null) {
-                requireActivity().moveTaskToBack(true)
-//                sharedViewModel.finishActivity()
-//                activity?.onBackPressedDispatcher?.onBackPressed()
-            } else {
-                clearAllPins(map)
-                enableCenterPin()
-            }
-        }
     }
 
     private fun addPlaceMarkAtPosition(position: Point) {
@@ -196,9 +184,13 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         cameraUpdateReason: CameraUpdateReason,
         finished: Boolean
     ) {
+        viewModel.setZoom(cameraPosition.zoom)
+        viewModel.setAzimuth(cameraPosition.azimuth)
+        viewModel.setTilt(cameraPosition.tilt)
+        viewModel.setMapCenter(cameraPosition.target)
+
+        timber("MAPCENTERRR2: ${viewModel.mapCenter?.latitude} ${viewModel.mapCenter?.longitude}")
         if (finished && placeMark == null) {
-            mapCenter = cameraPosition.target
-            timber("MAPCENTERRR: ${mapCenter?.latitude} ${mapCenter?.longitude}")
         }
     }
 
@@ -217,18 +209,6 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         MapKitFactory.getInstance().onStop()
         super.onStop()
     }
-
-//    override fun onDestroyView() {
-//        binding.mapView.onStop()
-//        MapKitFactory.getInstance().onStop()
-//        super.onDestroyView()
-//    }
-
-//    override fun onDestroy() {
-//        binding.mapView.onStop()
-//        MapKitFactory.getInstance().onStop()
-//        super.onDestroy()
-//    }
 
     override fun onClick(v: View?) {
         when (v?.id) {

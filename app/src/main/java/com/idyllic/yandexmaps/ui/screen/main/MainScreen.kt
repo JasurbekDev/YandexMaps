@@ -3,7 +3,9 @@ package com.idyllic.yandexmaps.ui.screen.main
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.idyllic.common.base.BaseFragment

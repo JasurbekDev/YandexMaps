@@ -6,6 +6,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import by.kirich1409.viewbindingdelegate.viewBinding
+import com.idyllic.common.util.setFromScreenMaterialSharedAxisZTransition
 import com.idyllic.yandexmaps.R
 import com.idyllic.yandexmaps.base.BaseMainFragment
 import com.idyllic.yandexmaps.databinding.ScreenBookmarksBinding
