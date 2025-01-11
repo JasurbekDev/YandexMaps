@@ -19,11 +19,11 @@ import com.idyllic.yandexmaps.databinding.ScreenMapBinding
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
-import com.yandex.mapkit.layers.GeoObjectTapEvent
 import com.yandex.mapkit.layers.GeoObjectTapListener
 import com.yandex.mapkit.map.CameraListener
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.CameraUpdateReason
+import com.yandex.mapkit.map.GeoObjectSelectionMetadata
 import com.yandex.mapkit.map.IconStyle
 import com.yandex.mapkit.map.InputListener
 import com.yandex.mapkit.map.Map
@@ -33,7 +33,6 @@ import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.runtime.image.ImageProvider
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
-import kotlin.getValue
 
 @AndroidEntryPoint
 class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, CameraListener {
@@ -54,44 +53,65 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         true
     }
 
-    val inputListener = object : InputListener {
+    private val inputListener = object : InputListener {
         override fun onMapTap(map: Map, point: Point) {
 
         }
 
         override fun onMapLongTap(map: Map, point: Point) {
             timber("${point.latitude} ${point.longitude}")
-            disableCenterPin()
             clearAllPins(map)
             createPin(map, point, placeMarkTapListener)
-
-            map.move(
-                CameraPosition(
-                    point,
-                    map.cameraPosition.zoom,
-                    viewModel.azimuth ?: 16.0f,
-                    viewModel.tilt ?: 0.0f
-                ),
-                Animation(Animation.Type.SMOOTH, 0.5f),
-                cameraCallback
-            )
+            moveCamera(map, point)
         }
 
     }
 
-    val cameraCallback = object : CameraCallback {
-        override fun onMoveFinished(isFinished: Boolean) {
-            if (isFinished) {
+    private fun moveCamera(map: Map, point: Point) {
+        map.move(
+            CameraPosition(
+                point,
+                map.cameraPosition.zoom,
+                viewModel.azimuth ?: 16.0f,
+                viewModel.tilt ?: 0.0f
+            ),
+            Animation(Animation.Type.SMOOTH, 0.5f),
+            cameraCallback
+        )
+    }
 
+    private val cameraCallback = CameraCallback { isFinished ->
+        if (isFinished) {
+
+        }
+    }
+
+    private val geoObjectTapListener = GeoObjectTapListener { event ->
+        timber("onObjectTap: ${event.geoObject.name}")
+        val metadataContainer = event.geoObject.metadataContainer
+        val selectionMetadata = metadataContainer.getItem(GeoObjectSelectionMetadata::class.java)
+        val point = event.geoObject.geometry[0].point
+        point?.let {
+            selectGeoObject(selectionMetadata, point)
+            map?.let {
+                moveCamera(it, point)
             }
+            return@GeoObjectTapListener true
         }
+        return@GeoObjectTapListener false
     }
 
-    val geoObjectTapListener = object : GeoObjectTapListener {
-        override fun onObjectTap(event: GeoObjectTapEvent): Boolean {
-            timber("onObjectTap: ${event.geoObject.name}")
-            return true
-        }
+    private fun selectGeoObject(selectionMetadata: GeoObjectSelectionMetadata, point: Point) {
+        clearAllPins(map)
+        disableCenterPin()
+        viewModel.setSelectedGeoObject(selectionMetadata, point)
+        map?.selectGeoObject(selectionMetadata)
+    }
+
+    private fun deselectGeoObject() {
+        enableCenterPin()
+        map?.deselectGeoObject()
+        viewModel.setSelectedGeoObject(null, null)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,15 +127,17 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
 
         viewModel.placeMarkGeometry?.let {
             createPin(map, it, placeMarkTapListener)
-            disableCenterPin()
+        }
+
+        viewModel.selectedGeoObject?.let { obj ->
+            selectGeoObject(obj.first, obj.second)
         }
 
         backPressedScreen(true) {
-            if (placeMark == null) {
+            if (placeMark == null && viewModel.selectedGeoObject == null) {
                 requireActivity().moveTaskToBack(true)
             } else {
                 clearAllPins(map)
-                enableCenterPin()
             }
         }
     }
@@ -144,6 +166,9 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
     }
 
     private fun createPin(map: Map?, point: Point, listener: MapObjectTapListener) {
+        clearAllPins(map)
+        disableCenterPin()
+
         val imageProvider =
             ImageProvider.fromResource(context, com.idyllic.ui_module.R.drawable.ic_pin)
         placeMark = map?.mapObjects?.addPlacemark()?.apply {
@@ -161,11 +186,15 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         placeMark?.let { pm ->
             viewModel.setPlaceMarkGeometry(pm.geometry)
         }
+
     }
 
     private fun clearAllPins(map: Map?) {
         map?.mapObjects?.clear()
+        viewModel.clearPlaceMark()
         placeMark = null
+        deselectGeoObject()
+        enableCenterPin()
     }
 
     private fun addPlaceMarkAtPosition(position: Point) {
