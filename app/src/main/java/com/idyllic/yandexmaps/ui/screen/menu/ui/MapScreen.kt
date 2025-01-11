@@ -4,6 +4,8 @@ import android.graphics.PointF
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -16,6 +18,7 @@ import com.idyllic.core_api.model.LineDto
 import com.idyllic.yandexmaps.R
 import com.idyllic.yandexmaps.base.BaseMainFragment
 import com.idyllic.yandexmaps.databinding.ScreenMapBinding
+import com.idyllic.yandexmaps.ui.dialog.LocationDialog
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
@@ -32,6 +35,8 @@ import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.runtime.image.ImageProvider
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -46,7 +51,8 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         try {
             val userCarDto = mapObject.userData as LineDto.UserCarDto
 //            toast("Tapped the point (${point.longitude}, ${point.latitude})")
-            toast("User id ${userCarDto.id}")
+
+            LocationDialog.newInstance().show(childFragmentManager)
         } catch (e: ClassCastException) {
             Timber.e(e)
         }
@@ -82,7 +88,6 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
 
     private val cameraCallback = CameraCallback { isFinished ->
         if (isFinished) {
-
         }
     }
 
@@ -106,6 +111,7 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         disableCenterPin()
         viewModel.setSelectedGeoObject(selectionMetadata, point)
         map?.selectGeoObject(selectionMetadata)
+        LocationDialog.newInstance().show(childFragmentManager)
     }
 
     private fun deselectGeoObject() {
@@ -125,6 +131,10 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
 
         initMap()
 
+        viewModel.apply {
+            locationDialogLiveData.observe(viewLifecycleOwner, locationDialogObserver)
+        }
+
         viewModel.placeMarkGeometry?.let {
             createPin(map, it, placeMarkTapListener)
         }
@@ -140,6 +150,10 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
                 clearAllPins(map)
             }
         }
+    }
+
+    private val locationDialogObserver = Observer<Unit> {
+        LocationDialog.newInstance().show(childFragmentManager)
     }
 
     private fun initMap() {
@@ -186,7 +200,7 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         placeMark?.let { pm ->
             viewModel.setPlaceMarkGeometry(pm.geometry)
         }
-
+        LocationDialog.newInstance().show(childFragmentManager)
     }
 
     private fun clearAllPins(map: Map?) {
@@ -213,14 +227,20 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         cameraUpdateReason: CameraUpdateReason,
         finished: Boolean
     ) {
+        viewModel.onCameraPositionChanged()
         viewModel.setZoom(cameraPosition.zoom)
         viewModel.setAzimuth(cameraPosition.azimuth)
         viewModel.setTilt(cameraPosition.tilt)
         viewModel.setMapCenter(cameraPosition.target)
 
         timber("MAPCENTERRR2: ${viewModel.mapCenter?.latitude} ${viewModel.mapCenter?.longitude}")
-        if (finished && placeMark == null) {
+        if (finished && isCenterPinActive()) {
+            viewModel.onCameraPositionChangedFinish()
         }
+    }
+
+    private fun isCenterPinActive(): Boolean {
+        return viewModel.placeMarkGeometry == null && viewModel.selectedGeoObject == null
     }
 
     private fun updatePinPosition(position: Point) {

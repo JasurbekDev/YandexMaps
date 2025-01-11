@@ -88,8 +88,8 @@
     </style>
 
     <style name="Title.Medium" parent="TextAppearance.Material3.TitleMedium">
-        <item name="fontFamily">@font/roboto_medium</item>
-        <item name="android:textSize">@dimen/dp_14</item>
+        <item name="fontFamily">@font/roboto_bold</item>
+        <item name="android:textSize">@dimen/dp_20</item>
         <item name="android:letterSpacing">0.025</item>
     </style>
 

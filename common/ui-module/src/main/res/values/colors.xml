@@ -92,7 +92,7 @@
     <color name="colorPrimaryContainer">#75FD92</color>
     <color name="colorOnPrimaryContainer">#002109</color>
 
-    <color name="colorSecondary">#006E2B</color>
+    <color name="colorSecondary">#000000</color>
     <color name="colorOnSecondary">#FFFFFF</color>
     <color name="colorSecondaryContainer">#88FB99</color>
     <color name="colorOnSecondaryContainer">#002108</color>
@@ -143,4 +143,6 @@
     <color name="colorServerMode">#9CFF5721</color>
 
     <color name="red_800">#c62828</color>
+    <color name="light_grey">#D0CFCF</color>
+    <color name="light_grey_title">#B0ABAB</color>
 </resources>

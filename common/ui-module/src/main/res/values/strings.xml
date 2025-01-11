@@ -22,4 +22,6 @@
     <string name="lbl_map">Map</string>
     <string name="lbl_profile">Profile</string>
     <string name="lbl_pin">Pin</string>
+    <string name="lbl_search">Поиск</string>
+    <string name="lbl_add_to_bookmarks">Добавить в избранное</string>
 </resources>
