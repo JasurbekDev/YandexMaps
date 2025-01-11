@@ -68,6 +68,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:inputType="textCapSentences"
+                    android:textColor="@color/colorOnSurface"
                     android:textColorHint="@color/black"
                     android:background="@color/black_trans_100"
                     android:layout_marginStart="@dimen/dp_8"

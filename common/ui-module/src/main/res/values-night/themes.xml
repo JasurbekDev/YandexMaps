@@ -22,6 +22,103 @@
         <item name="materialCardViewStyle">@style/CustomCardViewStyle</item>
     </style>
 
+    <style name="DialogTheme" parent="Theme.Idyllic">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowIsFloating">false</item>
+    </style>
+
+    <style name="CustomBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/CustomBottomSheetStyle</item>
+    </style>
+
+    <style name="CustomBottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="Text">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="Body.Small" parent="TextAppearance.Material3.BodySmall">
+        <item name="fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">@dimen/dp_12</item>
+        <item name="android:letterSpacing">0.04</item>
+    </style>
+
+    <style name="Body.Medium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">@dimen/dp_14</item>
+        <item name="android:letterSpacing">0.025</item>
+    </style>
+
+    <style name="Body.Large" parent="TextAppearance.Material3.BodyLarge">
+        <item name="fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">@dimen/dp_16</item>
+        <item name="android:letterSpacing">0.05</item>
+    </style>
+
+    <style name="Label.Small" parent="TextAppearance.Material3.LabelSmall">
+        <item name="fontFamily">@font/roboto_medium</item>
+        <item name="android:textSize">@dimen/dp_12</item>
+        <item name="android:letterSpacing">0.04</item>
+    </style>
+
+    <style name="Label.Medium" parent="TextAppearance.Material3.LabelMedium">
+        <item name="fontFamily">@font/roboto_medium</item>
+        <item name="android:textSize">@dimen/dp_14</item>
+        <item name="android:letterSpacing">0.025</item>
+    </style>
+
+    <style name="Label.Large" parent="TextAppearance.Material3.LabelLarge">
+        <item name="fontFamily">@font/roboto_bold</item>
+        <item name="android:textSize">@dimen/dp_16</item>
+        <item name="android:letterSpacing">0.05</item>
+    </style>
+
+    <style name="Label.Large.14" parent="TextAppearance.Material3.LabelLarge">
+        <item name="fontFamily">@font/roboto_medium</item>
+        <item name="android:textSize">@dimen/dp_14</item>
+        <item name="android:letterSpacing">0.05</item>
+    </style>
+
+    <style name="Title.Small" parent="TextAppearance.Material3.TitleSmall">
+        <item name="fontFamily">@font/roboto_medium</item>
+        <item name="android:textSize">@dimen/dp_12</item>
+        <item name="android:letterSpacing">0.04</item>
+    </style>
+
+    <style name="Title.Medium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="fontFamily">@font/roboto_bold</item>
+        <item name="android:textSize">@dimen/dp_20</item>
+        <item name="android:letterSpacing">0.025</item>
+        <item name="android:textColor">@color/colorOnSurface</item>
+    </style>
+
+    <style name="Title.Large" parent="TextAppearance.Material3.TitleLarge">
+        <item name="fontFamily">@font/roboto_bold</item>
+        <item name="android:textSize">@dimen/dp_24</item>
+        <item name="android:letterSpacing">0.05</item>
+        <item name="android:textColor">@color/colorOnSurface</item>
+    </style>
+
+    <style name="Title.Large.Number" parent="Title.Large">
+        <item name="android:textSize">@dimen/dp_30</item>
+        <item name="android:textColor">@color/color_on_surface</item>
+        <item name="android:fontFamily">@font/roboto_black</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">?selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="MyCustomTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
+        <item name="fontFamily">@font/roboto_medium</item>
+    </style>
+
     <style name="CustomCardViewStyle" parent="Widget.MaterialComponents.CardView">
         <item name="cardBackgroundColor">?attr/colorPrimaryDark</item>
     </style>

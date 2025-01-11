@@ -5,14 +5,12 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.idyllic.core.ktx.backPressedScreen
 import com.idyllic.core.ktx.gone
 import com.idyllic.core.ktx.timber
-import com.idyllic.core.ktx.toast
 import com.idyllic.core.ktx.visible
 import com.idyllic.core_api.model.LineDto
 import com.idyllic.yandexmaps.R
@@ -35,8 +33,6 @@ import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.runtime.image.ImageProvider
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -52,7 +48,10 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
             val userCarDto = mapObject.userData as LineDto.UserCarDto
 //            toast("Tapped the point (${point.longitude}, ${point.latitude})")
 
-            LocationDialog.newInstance().show(childFragmentManager)
+            map?.let {
+                moveCamera(it, point)
+            }
+            showLocationDialog()
         } catch (e: ClassCastException) {
             Timber.e(e)
         }
@@ -111,7 +110,15 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         disableCenterPin()
         viewModel.setSelectedGeoObject(selectionMetadata, point)
         map?.selectGeoObject(selectionMetadata)
-        LocationDialog.newInstance().show(childFragmentManager)
+        showLocationDialog()
+    }
+
+    private fun showLocationDialog() {
+        if (viewModel.isOpenDialog) {
+            LocationDialog.newInstance().show(childFragmentManager)
+        } else {
+            viewModel.setOpenDialogTrue()
+        }
     }
 
     private fun deselectGeoObject() {
@@ -153,7 +160,7 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
     }
 
     private val locationDialogObserver = Observer<Unit> {
-        LocationDialog.newInstance().show(childFragmentManager)
+        showLocationDialog()
     }
 
     private fun initMap() {
@@ -200,7 +207,7 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         placeMark?.let { pm ->
             viewModel.setPlaceMarkGeometry(pm.geometry)
         }
-        LocationDialog.newInstance().show(childFragmentManager)
+        showLocationDialog()
     }
 
     private fun clearAllPins(map: Map?) {
@@ -234,8 +241,10 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         viewModel.setMapCenter(cameraPosition.target)
 
         timber("MAPCENTERRR2: ${viewModel.mapCenter?.latitude} ${viewModel.mapCenter?.longitude}")
-        if (finished && isCenterPinActive()) {
-            viewModel.onCameraPositionChangedFinish()
+        if (finished) {
+            if (isCenterPinActive()) {
+                viewModel.onCameraPositionChangedFinish()
+            }
         }
     }
 
@@ -257,6 +266,11 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         binding.mapView.onStop()
         MapKitFactory.getInstance().onStop()
         super.onStop()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.onDestroyView()
     }
 
     override fun onClick(v: View?) {

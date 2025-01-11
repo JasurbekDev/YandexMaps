@@ -91,6 +91,7 @@
         <item name="fontFamily">@font/roboto_bold</item>
         <item name="android:textSize">@dimen/dp_20</item>
         <item name="android:letterSpacing">0.025</item>
+        <item name="android:textColor">@color/colorOnSurface</item>
     </style>
 
     <style name="Title.Large" parent="TextAppearance.Material3.TitleLarge">

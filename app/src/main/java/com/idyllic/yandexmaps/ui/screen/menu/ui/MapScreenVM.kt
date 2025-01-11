@@ -1,11 +1,10 @@
 package com.idyllic.yandexmaps.ui.screen.menu.ui
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.idyllic.common.vm.SingleLiveEvent
 import com.idyllic.core_api.usecase.LoginUseCase
 import com.idyllic.yandexmaps.base.BaseMainVM
-import com.idyllic.yandexmaps.ui.dialog.LocationDialog
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.GeoObjectSelectionMetadata
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,8 +25,9 @@ class MapScreenVM @Inject constructor(
     private var _placeMarkGeometry: Point? = null
     private var _selectedGeoObject: Pair<GeoObjectSelectionMetadata, Point>? = null
     private var job: Job? = null
+    private var _isOpenDialog: Boolean = false
 
-    private val _locationDialogLiveData = MutableLiveData<Unit>()
+    private val _locationDialogLiveData = SingleLiveEvent<Unit>()
     val locationDialogLiveData: LiveData<Unit> = _locationDialogLiveData
 
     val zoom: Float?
@@ -47,6 +47,9 @@ class MapScreenVM @Inject constructor(
 
     val selectedGeoObject: Pair<GeoObjectSelectionMetadata, Point>?
         get() = _selectedGeoObject
+
+    val isOpenDialog: Boolean
+        get() = _isOpenDialog
 
     fun setZoom(zoom: Float?) {
         this._zoom = zoom
@@ -86,8 +89,19 @@ class MapScreenVM @Inject constructor(
 
     fun onCameraPositionChangedFinish() {
         job = viewModelScope.launch {
-            delay(500)
+            delay(400)
             _locationDialogLiveData.value = Unit
+        }
+    }
+
+    fun onDestroyView() {
+        _isOpenDialog = false
+        job?.cancel()
+    }
+
+    fun setOpenDialogTrue() {
+        if (!_isOpenDialog) {
+            _isOpenDialog = true
         }
     }
 
