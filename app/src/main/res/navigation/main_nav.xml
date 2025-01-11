@@ -33,7 +33,7 @@
     </fragment>
     <fragment
         android:id="@+id/linesScreen"
-        android:name="com.idyllic.yandexmaps.ui.screen.menu.ui.lines.LinesScreen"
+        android:name="com.idyllic.yandexmaps.ui.screen.map.ui.lines.LinesScreen"
         android:label="LinesScreen"
         tools:layout="@layout/screen_lines" />
 </navigation>

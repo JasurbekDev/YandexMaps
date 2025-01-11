@@ -1,4 +1,4 @@
-package com.idyllic.yandexmaps.ui.screen.menu.ui.lines
+package com.idyllic.yandexmaps.ui.screen.map.ui.lines
 
 import android.os.Bundle
 import android.view.View
@@ -13,7 +13,7 @@ import com.idyllic.core_api.model.LineDto
 import com.idyllic.yandexmaps.R
 import com.idyllic.yandexmaps.databinding.ScreenLinesBinding
 import com.idyllic.yandexmaps.ui.adapter.list.LineAdapter
-import com.idyllic.yandexmaps.ui.screen.menu.adapter.LinePagingAdapter
+import com.idyllic.yandexmaps.ui.screen.map.adapter.LinePagingAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch

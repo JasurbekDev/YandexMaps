@@ -63,37 +63,42 @@
         android:layout_height="wrap_content">
 
         <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/image_star_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/dp_8"
             android:src="@drawable/ic_star_selected" />
 
         <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/image_star_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/dp_8"
             android:src="@drawable/ic_star_selected" />
 
         <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/image_star_3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/dp_8"
             android:src="@drawable/ic_star_selected" />
 
         <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/image_star_4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/dp_8"
             android:src="@drawable/ic_star_selected" />
 
         <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/image_star_5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/dp_8"
             android:src="@drawable/ic_star_unselected" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/text_rating"
+            android:id="@+id/text_reviews"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/light_grey_title"

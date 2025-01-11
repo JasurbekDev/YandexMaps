@@ -12,7 +12,7 @@
         tools:layout="@layout/screen_bookmarks" />
     <fragment
         android:id="@+id/mapScreen"
-        android:name="com.idyllic.yandexmaps.ui.screen.menu.ui.MapScreen"
+        android:name="com.idyllic.yandexmaps.ui.screen.map.ui.MapScreen"
         android:label="MenuScreen"
         tools:layout="@layout/screen_map" />
     <fragment

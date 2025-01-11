@@ -1,4 +1,4 @@
-package com.idyllic.yandexmaps.ui.screen.menu.source
+package com.idyllic.yandexmaps.ui.screen.map.source
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState

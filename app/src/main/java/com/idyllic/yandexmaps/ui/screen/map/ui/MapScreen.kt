@@ -1,4 +1,4 @@
-package com.idyllic.yandexmaps.ui.screen.menu.ui
+package com.idyllic.yandexmaps.ui.screen.map.ui
 
 import android.graphics.PointF
 import android.os.Bundle
@@ -16,6 +16,7 @@ import com.idyllic.core_api.model.LineDto
 import com.idyllic.yandexmaps.R
 import com.idyllic.yandexmaps.base.BaseMainFragment
 import com.idyllic.yandexmaps.databinding.ScreenMapBinding
+import com.idyllic.yandexmaps.models.GeoObjectLocation
 import com.idyllic.yandexmaps.ui.dialog.LocationDialog
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
@@ -31,6 +32,12 @@ import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.map.Map.CameraCallback
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.map.PlacemarkMapObject
+import com.yandex.mapkit.search.Response
+import com.yandex.mapkit.search.SearchFactory
+import com.yandex.mapkit.search.SearchManagerType
+import com.yandex.mapkit.search.SearchOptions
+import com.yandex.mapkit.search.Session.SearchListener
+import com.yandex.runtime.Error
 import com.yandex.runtime.image.ImageProvider
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -42,6 +49,7 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
     private var mainNavigation: NavController? = null
     private var map: Map? = null
     private var placeMark: PlacemarkMapObject? = null
+    private var locationDialog: LocationDialog? = null
 
     private val placeMarkTapListener = MapObjectTapListener { mapObject, point ->
         try {
@@ -65,8 +73,11 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
 
         override fun onMapLongTap(map: Map, point: Point) {
             timber("${point.latitude} ${point.longitude}")
-            clearAllPins(map)
-            createPin(map, point, placeMarkTapListener)
+//            clearAllPins(map)
+            map.mapObjects.clear()
+            deselectGeoObject()
+            disableCenterPin()
+            viewModel.createPin(point)
             moveCamera(map, point)
         }
 
@@ -91,12 +102,16 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
     }
 
     private val geoObjectTapListener = GeoObjectTapListener { event ->
-        timber("onObjectTap: ${event.geoObject.name}")
         val metadataContainer = event.geoObject.metadataContainer
         val selectionMetadata = metadataContainer.getItem(GeoObjectSelectionMetadata::class.java)
+
         val point = event.geoObject.geometry[0].point
+
         point?.let {
-            selectGeoObject(selectionMetadata, point)
+            map?.mapObjects?.clear()
+            placeMark = null
+            val name = event.geoObject.name ?: ""
+            viewModel.selectGeoObject(selectionMetadata, point, name)
             map?.let {
                 moveCamera(it, point)
             }
@@ -105,18 +120,50 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         return@GeoObjectTapListener false
     }
 
-    private fun selectGeoObject(selectionMetadata: GeoObjectSelectionMetadata, point: Point) {
-        clearAllPins(map)
-        disableCenterPin()
-        viewModel.setSelectedGeoObject(selectionMetadata, point)
-        map?.selectGeoObject(selectionMetadata)
-        showLocationDialog()
+    private fun getAddressOf(point: Point): String {
+        val searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
+        var fullAddress = ""
+        searchManager.submit(
+            point,
+            0,
+            SearchOptions(),
+            object : SearchListener {
+                override fun onSearchResponse(response: Response) {
+                    val address = response.collection.children.firstOrNull()?.obj?.name
+                    val desc = response.collection.children.firstOrNull()?.obj?.descriptionText ?: ""
+
+                    val descParts = desc.split(",").map { it.trim() }.reversed()
+                    val descWithoutLast = if (descParts.size > 1) descParts.drop(1).joinToString(", ") else ""
+
+                    fullAddress = if (descWithoutLast.isNotEmpty()) "$descWithoutLast, $address" else address ?: ""
+                }
+
+                override fun onSearchError(error: Error) {
+                    Timber.e("ReverseGeocoding", "Error: $error")
+                }
+
+            }
+        )
+        return fullAddress
     }
 
-    private fun showLocationDialog() {
+    private fun selectGeoObject(selectionMetadata: GeoObjectSelectionMetadata, geoObjectLocation: GeoObjectLocation) {
+        disableCenterPin()
+        map?.selectGeoObject(selectionMetadata)
+        showLocationDialog(geoObjectLocation)
+    }
+
+    private fun showLocationDialog(geoObjectLocation: GeoObjectLocation? = null) {
         if (viewModel.isOpenDialog) {
-            LocationDialog.newInstance().show(childFragmentManager)
+            if (locationDialog == null) {
+                locationDialog = LocationDialog.newInstance(geoObjectLocation)
+                locationDialog?.show(childFragmentManager)
+            } else {
+                locationDialog?.setGeoObjectLocation(geoObjectLocation)
+                locationDialog?.show(childFragmentManager)
+            }
         } else {
+            locationDialog?.setGeoObjectLocation(geoObjectLocation)
             viewModel.setOpenDialogTrue()
         }
     }
@@ -140,10 +187,13 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
 
         viewModel.apply {
             locationDialogLiveData.observe(viewLifecycleOwner, locationDialogObserver)
+            selectGeoObjectLiveData.observe(viewLifecycleOwner, selectGeoObjectObserver)
+            createPinLiveData.observe(viewLifecycleOwner, createPinObserver)
+            centerPinDropLiveData.observe(viewLifecycleOwner, centerPinDropObserver)
         }
 
         viewModel.placeMarkGeometry?.let {
-            createPin(map, it, placeMarkTapListener)
+            createPin(it.first, it.second)
         }
 
         viewModel.selectedGeoObject?.let { obj ->
@@ -159,8 +209,25 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         }
     }
 
-    private val locationDialogObserver = Observer<Unit> {
-        showLocationDialog()
+    private val locationDialogObserver = Observer<Point?> {
+        it?.let { point ->
+            val geoObjectLocation = GeoObjectLocation(
+                address = getAddressOf(point)
+            )
+            showLocationDialog(geoObjectLocation)
+        }
+    }
+
+    private val selectGeoObjectObserver = Observer<Pair<GeoObjectSelectionMetadata, GeoObjectLocation>> {
+        selectGeoObject(it.first, it.second)
+    }
+
+    private val createPinObserver = Observer<Pair<Point, GeoObjectLocation>> {
+        createPin(it.first, it.second)
+    }
+
+    private val centerPinDropObserver = Observer<Pair<Point, GeoObjectLocation>> {
+        showLocationDialog(it.second)
     }
 
     private fun initMap() {
@@ -186,8 +253,8 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         binding.imagePin.visible()
     }
 
-    private fun createPin(map: Map?, point: Point, listener: MapObjectTapListener) {
-        clearAllPins(map)
+    private fun createPin(point: Point, geoObjectLocation: GeoObjectLocation) {
+//        clearAllPins(map)
         disableCenterPin()
 
         val imageProvider =
@@ -196,18 +263,14 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
             geometry = point
             setIcon(imageProvider)
         }
-        placeMark?.isDraggable = true
         placeMark?.userData = LineDto.UserCarDto(123)
         placeMark?.setIconStyle(
             IconStyle().apply {
                 anchor = PointF(0.5f, 0.95f)
             }
         )
-        placeMark?.addTapListener(listener)
-        placeMark?.let { pm ->
-            viewModel.setPlaceMarkGeometry(pm.geometry)
-        }
-        showLocationDialog()
+        placeMark?.addTapListener(placeMarkTapListener)
+        showLocationDialog(geoObjectLocation)
     }
 
     private fun clearAllPins(map: Map?) {
@@ -242,14 +305,10 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
 
         timber("MAPCENTERRR2: ${viewModel.mapCenter?.latitude} ${viewModel.mapCenter?.longitude}")
         if (finished) {
-            if (isCenterPinActive()) {
+            if (viewModel.isCenterPinActive()) {
                 viewModel.onCameraPositionChangedFinish()
             }
         }
-    }
-
-    private fun isCenterPinActive(): Boolean {
-        return viewModel.placeMarkGeometry == null && viewModel.selectedGeoObject == null
     }
 
     private fun updatePinPosition(position: Point) {

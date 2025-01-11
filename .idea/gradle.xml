@@ -17,8 +17,10 @@
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/data" />
             <option value="$PROJECT_DIR$/data/core-imp" />
+            <option value="$PROJECT_DIR$/data/map-imp" />
             <option value="$PROJECT_DIR$/domain" />
             <option value="$PROJECT_DIR$/domain/core-api" />
+            <option value="$PROJECT_DIR$/domain/map-api" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

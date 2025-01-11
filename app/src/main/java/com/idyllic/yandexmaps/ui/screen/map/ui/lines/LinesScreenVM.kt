@@ -1,4 +1,4 @@
-package com.idyllic.yandexmaps.ui.screen.menu.ui.lines
+package com.idyllic.yandexmaps.ui.screen.map.ui.lines
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,7 +12,7 @@ import com.idyllic.core_api.model.LineDto
 import com.idyllic.core_api.model.LinesBodyDto
 import com.idyllic.core_api.model.ResourceUI
 import com.idyllic.core_api.usecase.GetLinesUseCase
-import com.idyllic.yandexmaps.ui.screen.menu.source.LinesDataSource
+import com.idyllic.yandexmaps.ui.screen.map.source.LinesDataSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

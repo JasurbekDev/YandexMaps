@@ -1,4 +1,4 @@
-package com.idyllic.yandexmaps.ui.screen.menu.adapter
+package com.idyllic.yandexmaps.ui.screen.map.adapter
 
 import android.view.LayoutInflater
 import android.view.View
