@@ -112,9 +112,6 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
             placeMark = null
             val name = event.geoObject.name ?: ""
             viewModel.selectGeoObject(selectionMetadata, point, name)
-            map?.let {
-                moveCamera(it, point)
-            }
             return@GeoObjectTapListener true
         }
         return@GeoObjectTapListener false
@@ -150,6 +147,11 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
     private fun selectGeoObject(selectionMetadata: GeoObjectSelectionMetadata, geoObjectLocation: GeoObjectLocation) {
         disableCenterPin()
         map?.selectGeoObject(selectionMetadata)
+        map?.let {
+            geoObjectLocation.point?.let { point ->
+                moveCamera(it, point)
+            }
+        }
         showLocationDialog(geoObjectLocation)
     }
 

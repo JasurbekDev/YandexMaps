@@ -133,7 +133,8 @@ class MapScreenVM @Inject constructor(
                                         name = name,
                                         address = data,
                                         rating = getRandomNumberForString(metadata.objectId, 0..5),
-                                        reviews = getRandomNumberForString(name ?: "", 0..999)
+                                        reviews = getRandomNumberForString(name ?: "", 0..999),
+                                        point = point
                                     )
                                     setSelectedGeoObject(metadata, geoObjectLocation)
                                     _selectGeoObjectLiveData.value = Pair(metadata, geoObjectLocation)

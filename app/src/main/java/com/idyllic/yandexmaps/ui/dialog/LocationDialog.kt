@@ -2,9 +2,11 @@ package com.idyllic.yandexmaps.ui.dialog
 
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.widget.AppCompatImageView
 import com.idyllic.common.base.BaseBottomSheetDialogFragment
 import com.idyllic.common.util.customGetSerializable
 import com.idyllic.core.ktx.gone
+import com.idyllic.core.ktx.timber
 import com.idyllic.core.ktx.visible
 import com.idyllic.yandexmaps.R
 import com.idyllic.yandexmaps.databinding.DialogLocationBinding
@@ -17,6 +19,14 @@ class LocationDialog : BaseBottomSheetDialogFragment(R.layout.dialog_location) {
     private var geoObjectLocation: GeoObjectLocation? = null
     private var binding: DialogLocationBinding? = null
     private var listener: Callback? = null
+
+    private var imageStar1: AppCompatImageView? = null
+    private var imageStar2: AppCompatImageView? = null
+    private var imageStar3: AppCompatImageView? = null
+    private var imageStar4: AppCompatImageView? = null
+    private var imageStar5: AppCompatImageView? = null
+
+    private val imageStarList: MutableList<AppCompatImageView?> = arrayListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +55,7 @@ class LocationDialog : BaseBottomSheetDialogFragment(R.layout.dialog_location) {
     }
 
     private fun updateContent(geoObjectLocation: GeoObjectLocation?) {
+        collectImageStars()
         geoObjectLocation?.name?.let {
             binding?.textStreet?.visible()
             binding?.textName?.text = geoObjectLocation.name
@@ -61,6 +72,37 @@ class LocationDialog : BaseBottomSheetDialogFragment(R.layout.dialog_location) {
             hideAllStars()
             binding?.textReviews?.gone()
         }
+
+        unselectAllStars()
+
+        geoObjectLocation?.rating?.let { rate ->
+            timber("RATEEEE: $rate")
+            for (i in 0 until rate) {
+                imageStarList[i]?.setImageResource(com.idyllic.ui_module.R.drawable.ic_star_selected)
+            }
+        }
+    }
+
+    private fun unselectAllStars() {
+        for (i in 0 until 5) {
+            imageStarList[i]?.setImageResource(com.idyllic.ui_module.R.drawable.ic_star_unselected)
+        }
+    }
+
+    private fun collectImageStars() {
+        imageStar1 = binding?.imageStar1
+        imageStar2 = binding?.imageStar2
+        imageStar3 = binding?.imageStar3
+        imageStar4 = binding?.imageStar4
+        imageStar5 = binding?.imageStar5
+
+        imageStarList.add(imageStar1)
+        imageStarList.add(imageStar2)
+        imageStarList.add(imageStar3)
+        imageStarList.add(imageStar4)
+        imageStarList.add(imageStar5)
+
+        unselectAllStars()
     }
 
     private fun showAllStars() {
