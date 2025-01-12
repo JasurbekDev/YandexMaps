@@ -3,11 +3,14 @@ package com.idyllic.yandexmaps.ui.dialog
 import android.os.Bundle
 import android.view.View
 import com.idyllic.common.base.BaseBottomSheetDialogFragment
+import com.idyllic.common.util.customGetSerializable
 import com.idyllic.core.ktx.gone
 import com.idyllic.core.ktx.visible
 import com.idyllic.yandexmaps.R
 import com.idyllic.yandexmaps.databinding.DialogLocationBinding
 import com.idyllic.yandexmaps.models.GeoObjectLocation
+
+const val KEY_GEO_OBJECT_LOCATION = "KEY_GEO_OBJECT_LOCATION"
 
 class LocationDialog : BaseBottomSheetDialogFragment(R.layout.dialog_location) {
 
@@ -17,7 +20,11 @@ class LocationDialog : BaseBottomSheetDialogFragment(R.layout.dialog_location) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setStyle(STYLE_NORMAL, com.idyllic.ui_module.R.style.CustomBottomSheetDialogTheme);
+        setStyle(STYLE_NORMAL, com.idyllic.ui_module.R.style.CustomBottomSheetDialogTheme)
+
+        arguments?.let {
+            geoObjectLocation = it.customGetSerializable(KEY_GEO_OBJECT_LOCATION) as GeoObjectLocation?
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -77,7 +84,9 @@ class LocationDialog : BaseBottomSheetDialogFragment(R.layout.dialog_location) {
         fun newInstance(
             geoObjectLocation: GeoObjectLocation?
         ): LocationDialog = LocationDialog().apply {
-            this.geoObjectLocation = geoObjectLocation
+            arguments = Bundle().apply {
+                putSerializable(KEY_GEO_OBJECT_LOCATION, geoObjectLocation)
+            }
         }
     }
 

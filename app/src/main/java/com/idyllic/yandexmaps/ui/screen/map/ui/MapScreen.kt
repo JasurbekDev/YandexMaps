@@ -53,13 +53,13 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
 
     private val placeMarkTapListener = MapObjectTapListener { mapObject, point ->
         try {
-            val userCarDto = mapObject.userData as LineDto.UserCarDto
+            val geoObjectLocation = mapObject.userData as? GeoObjectLocation
 //            toast("Tapped the point (${point.longitude}, ${point.latitude})")
 
             map?.let {
                 moveCamera(it, point)
             }
-            showLocationDialog()
+            showLocationDialog(geoObjectLocation)
         } catch (e: ClassCastException) {
             Timber.e(e)
         }
@@ -154,18 +154,40 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
     }
 
     private fun showLocationDialog(geoObjectLocation: GeoObjectLocation? = null) {
-        if (viewModel.isOpenDialog) {
-            if (locationDialog == null) {
-                locationDialog = LocationDialog.newInstance(geoObjectLocation)
-                locationDialog?.show(childFragmentManager)
-            } else {
-                locationDialog?.setGeoObjectLocation(geoObjectLocation)
-                locationDialog?.show(childFragmentManager)
-            }
-        } else {
+
+
+        val existingDialog = childFragmentManager.findFragmentByTag("LocationDialog") as? LocationDialog
+
+        if (existingDialog != null) {
+            locationDialog = existingDialog
             locationDialog?.setGeoObjectLocation(geoObjectLocation)
-            viewModel.setOpenDialogTrue()
+        } else {
+            locationDialog = LocationDialog.newInstance(geoObjectLocation)
+            locationDialog?.show(childFragmentManager, "LocationDialog")
         }
+
+
+
+
+
+
+//        if (viewModel.isOpenDialog) {
+//            if (locationDialog == null) {
+//                locationDialog = LocationDialog.newInstance(geoObjectLocation)
+//                locationDialog?.show(childFragmentManager)
+//            } else {
+//                locationDialog?.setGeoObjectLocation(geoObjectLocation)
+//                locationDialog?.show(childFragmentManager)
+//            }
+//        } else {
+//            locationDialog?.setGeoObjectLocation(geoObjectLocation)
+//            viewModel.setOpenDialogTrue()
+//        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
     }
 
     private fun deselectGeoObject() {
@@ -263,7 +285,7 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
             geometry = point
             setIcon(imageProvider)
         }
-        placeMark?.userData = LineDto.UserCarDto(123)
+        placeMark?.userData = geoObjectLocation
         placeMark?.setIconStyle(
             IconStyle().apply {
                 anchor = PointF(0.5f, 0.95f)
