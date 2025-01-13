@@ -145,4 +145,6 @@
     <color name="red_800">#c62828</color>
     <color name="light_grey">#D0CFCF</color>
     <color name="light_grey_title">#B0ABAB</color>
+    <color name="dark_grey">#939393</color>
+    <color name="beluga">#F1F1F1</color>
 </resources>

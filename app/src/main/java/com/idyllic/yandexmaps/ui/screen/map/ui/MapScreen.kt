@@ -12,12 +12,12 @@ import com.idyllic.core.ktx.backPressedScreen
 import com.idyllic.core.ktx.gone
 import com.idyllic.core.ktx.timber
 import com.idyllic.core.ktx.visible
-import com.idyllic.core_api.model.LineDto
 import com.idyllic.yandexmaps.R
 import com.idyllic.yandexmaps.base.BaseMainFragment
 import com.idyllic.yandexmaps.databinding.ScreenMapBinding
 import com.idyllic.yandexmaps.models.GeoObjectLocation
-import com.idyllic.yandexmaps.ui.dialog.LocationDialog
+import com.idyllic.yandexmaps.ui.dialog.LocationDialogInteractable
+import com.idyllic.yandexmaps.ui.dialog.SearchLocationDialog
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
@@ -49,7 +49,7 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
     private var mainNavigation: NavController? = null
     private var map: Map? = null
     private var placeMark: PlacemarkMapObject? = null
-    private var locationDialog: LocationDialog? = null
+    private var locationDialog: LocationDialogInteractable? = null
 
     private val placeMarkTapListener = MapObjectTapListener { mapObject, point ->
         try {
@@ -112,6 +112,9 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
             placeMark = null
             val name = event.geoObject.name ?: ""
             viewModel.selectGeoObject(selectionMetadata, point, name)
+            map?.let {
+                moveCamera(it, point)
+            }
             return@GeoObjectTapListener true
         }
         return@GeoObjectTapListener false
@@ -147,25 +150,23 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
     private fun selectGeoObject(selectionMetadata: GeoObjectSelectionMetadata, geoObjectLocation: GeoObjectLocation) {
         disableCenterPin()
         map?.selectGeoObject(selectionMetadata)
-        map?.let {
-            geoObjectLocation.point?.let { point ->
-                moveCamera(it, point)
-            }
-        }
         showLocationDialog(geoObjectLocation)
     }
 
     private fun showLocationDialog(geoObjectLocation: GeoObjectLocation? = null) {
 
 
-        val existingDialog = childFragmentManager.findFragmentByTag("LocationDialog") as? LocationDialog
+        val existingDialog = childFragmentManager.findFragmentByTag("LocationDialogInteractable") as? LocationDialogInteractable
+        val searchLocationDialog = childFragmentManager.findFragmentByTag("SearchLocationDialog") as? SearchLocationDialog
 
-        if (existingDialog != null) {
-            locationDialog = existingDialog
-            locationDialog?.setGeoObjectLocation(geoObjectLocation)
-        } else {
-            locationDialog = LocationDialog.newInstance(geoObjectLocation)
-            locationDialog?.show(childFragmentManager, "LocationDialog")
+        if (searchLocationDialog == null || searchLocationDialog.isDetached) {
+            if (existingDialog != null) {
+                locationDialog = existingDialog
+                locationDialog?.setGeoObjectLocation(geoObjectLocation)
+            } else {
+                locationDialog = LocationDialogInteractable.newInstance(geoObjectLocation)
+                locationDialog?.show(childFragmentManager)
+            }
         }
 
 
@@ -185,11 +186,6 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
 //            locationDialog?.setGeoObjectLocation(geoObjectLocation)
 //            viewModel.setOpenDialogTrue()
 //        }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-
     }
 
     private fun deselectGeoObject() {
@@ -231,6 +227,8 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
                 clearAllPins(map)
             }
         }
+
+        binding.cardSearch.setOnClickListener(this)
     }
 
     private val locationDialogObserver = Observer<Point?> {
@@ -358,7 +356,10 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
 
     override fun onClick(v: View?) {
         when (v?.id) {
-
+            R.id.card_search -> {
+                viewModel.onSearchDialogOpen()
+                SearchLocationDialog.newInstance().show(childFragmentManager)
+            }
         }
     }
 }

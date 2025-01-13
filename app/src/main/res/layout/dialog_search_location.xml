@@ -1,40 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <com.yandex.mapkit.mapview.MapView
-        android:id="@+id/map_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <View
-        android:id="@+id/view_center"
-        android:layout_width="1dp"
-        android:layout_height="1dp"
-        android:background="@android:color/transparent"
-        android:clickable="false"
-        android:focusable="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5" />
-
-    <ImageView
-        android:id="@+id/image_pin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/lbl_pin"
-        android:src="@drawable/ic_pin"
-        app:layout_constraintBottom_toBottomOf="@id/view_center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+    android:layout_height="match_parent"
+    android:background="@drawable/bac_sheet_dialog"
+    android:orientation="vertical"
+    android:theme="@style/Theme.Idyllic">
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_search"
+        android:layout_width="@dimen/dp_40"
+        android:layout_height="@dimen/dp_4"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/dp_8"
+        app:cardBackgroundColor="@color/light_grey"
+        app:cardCornerRadius="@dimen/dp_8"
+        app:cardElevation="0dp" />
+
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/dp_16"
@@ -63,8 +46,7 @@
                     android:layout_marginBottom="@dimen/dp_12"
                     android:src="@drawable/ic_search" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/text_search"
+                <androidx.appcompat.widget.AppCompatEditText
                     style="@style/Label.Large"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -73,6 +55,7 @@
                     android:background="@color/black_trans_100"
                     android:gravity="center_vertical"
                     android:hint="@string/lbl_search"
+                    android:inputType="textCapSentences"
                     android:textColor="@color/colorOnSurface"
                     android:textColorHint="@color/black" />
 
@@ -82,4 +65,12 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_location"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:itemCount="6"
+        tools:listitem="@layout/item_location" />
+
+</androidx.appcompat.widget.LinearLayoutCompat>

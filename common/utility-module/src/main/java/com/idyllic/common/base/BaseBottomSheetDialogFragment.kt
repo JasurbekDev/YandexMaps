@@ -24,7 +24,6 @@ abstract class BaseBottomSheetDialogFragment(@LayoutRes private val contentLayou
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         view.post {
             val parent = view.parent as? View
             parent?.let {
@@ -46,12 +45,11 @@ abstract class BaseBottomSheetDialogFragment(@LayoutRes private val contentLayou
 
         dialog?.window?.apply {
             setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL)
+            clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL)
 
             attributes = attributes.apply {
                 gravity = Gravity.BOTTOM
             }
-            setDimAmount(0.0f)
         }
     }
 }

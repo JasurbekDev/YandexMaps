@@ -3,7 +3,7 @@ package com.idyllic.yandexmaps.ui.dialog
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.AppCompatImageView
-import com.idyllic.common.base.BaseBottomSheetDialogFragment
+import com.idyllic.common.base.BaseInteractableBottomSheetDialogFragment
 import com.idyllic.common.util.customGetSerializable
 import com.idyllic.core.ktx.gone
 import com.idyllic.core.ktx.timber
@@ -14,7 +14,7 @@ import com.idyllic.yandexmaps.models.GeoObjectLocation
 
 const val KEY_GEO_OBJECT_LOCATION = "KEY_GEO_OBJECT_LOCATION"
 
-class LocationDialog : BaseBottomSheetDialogFragment(R.layout.dialog_location) {
+class LocationDialogInteractable : BaseInteractableBottomSheetDialogFragment(R.layout.dialog_location) {
 
     private var geoObjectLocation: GeoObjectLocation? = null
     private var binding: DialogLocationBinding? = null
@@ -125,7 +125,7 @@ class LocationDialog : BaseBottomSheetDialogFragment(R.layout.dialog_location) {
         @JvmStatic
         fun newInstance(
             geoObjectLocation: GeoObjectLocation?
-        ): LocationDialog = LocationDialog().apply {
+        ): LocationDialogInteractable = LocationDialogInteractable().apply {
             arguments = Bundle().apply {
                 putSerializable(KEY_GEO_OBJECT_LOCATION, geoObjectLocation)
             }

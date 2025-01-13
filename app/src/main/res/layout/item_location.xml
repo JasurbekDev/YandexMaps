@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/dp_16">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/image_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_4"
+        android:src="@drawable/ic_location"
+        android:tint="@color/dark_grey"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/text_name"
+        style="@style/Title.Medium"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_12"
+        android:layout_marginEnd="@dimen/dp_16"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:textSize="@dimen/dp_16"
+        app:layout_constraintEnd_toStartOf="@id/text_distance"
+        app:layout_constraintStart_toEndOf="@id/image_location"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Le Grande Plaza Hotel" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/text_street"
+        style="@style/Label.Large"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_12"
+        android:layout_marginEnd="@dimen/dp_16"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:textColor="@color/light_grey_title"
+        android:textSize="@dimen/dp_14"
+        app:layout_constraintEnd_toStartOf="@id/text_distance"
+        app:layout_constraintStart_toEndOf="@id/image_location"
+        app:layout_constraintTop_toBottomOf="@id/text_name"
+        tools:text="Ташкент, ул. Узбекистон Овози, 2" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/text_distance"
+        style="@style/Title.Medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_12"
+        android:layout_marginEnd="@dimen/dp_20"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:textSize="@dimen/dp_16"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="36 m" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_2"
+        android:layout_marginTop="@dimen/dp_16"
+        android:background="@color/beluga"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_street" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

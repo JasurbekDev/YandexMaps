@@ -187,6 +187,10 @@ class MapScreenVM @Inject constructor(
         job?.cancel()
     }
 
+    fun onSearchDialogOpen() {
+        job?.cancel()
+    }
+
     fun setOpenDialogTrue() {
         if (!_isOpenDialog) {
             _isOpenDialog = true
