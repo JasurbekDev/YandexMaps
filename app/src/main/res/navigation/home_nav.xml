@@ -14,7 +14,14 @@
         android:id="@+id/mapScreen"
         android:name="com.idyllic.yandexmaps.ui.screen.map.ui.MapScreen"
         android:label="MenuScreen"
-        tools:layout="@layout/screen_map" />
+        tools:layout="@layout/screen_map">
+        <deepLink app:uri="yandexmaps-app://map" />
+        <argument
+            android:name="location_dto"
+            app:argType="com.idyllic.map_api.model.LocationDto"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
     <fragment
         android:id="@+id/profileScreen"
         android:name="com.idyllic.yandexmaps.ui.screen.account.ProfileScreen"

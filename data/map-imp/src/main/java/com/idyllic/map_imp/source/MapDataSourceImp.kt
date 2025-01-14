@@ -1,13 +1,11 @@
 package com.idyllic.map_imp.source
 
-import com.idyllic.common.util.serializeToString
 import com.idyllic.core_api.model.ResourceUI
 import com.idyllic.map_api.model.LocationDto
 import com.idyllic.map_api.source.MapDataSource
-import com.idyllic.map_imp.Location
+import com.idyllic.map_imp.model.Location
 import com.yandex.mapkit.geometry.Geometry
 import com.yandex.mapkit.geometry.Point
-import com.yandex.mapkit.map.GeoObjectSelectionMetadata
 import com.yandex.mapkit.search.Response
 import com.yandex.mapkit.search.SearchFactory
 import com.yandex.mapkit.search.SearchManagerType

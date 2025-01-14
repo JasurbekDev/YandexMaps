@@ -1,12 +1,16 @@
 package com.idyllic.yandexmaps.ui.screen.map.ui
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.idyllic.common.util.getRandomNumberForString
 import com.idyllic.common.vm.SingleLiveEvent
 import com.idyllic.core.ktx.timber
 import com.idyllic.core_api.model.ResourceUI
+import com.idyllic.map_api.model.LocationDto
 import com.idyllic.map_api.usecase.FullAddressUseCase
+import com.idyllic.map_api.usecase.InsertLocationsDbUseCase
 import com.idyllic.yandexmaps.base.BaseMainVM
 import com.idyllic.yandexmaps.models.GeoObjectLocation
 import com.yandex.mapkit.geometry.Point
@@ -19,8 +23,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MapScreenVM @Inject constructor(
-    private val fullAddressUseCase: FullAddressUseCase
+    private val fullAddressUseCase: FullAddressUseCase,
+    private val insertLocationsDbUseCase: InsertLocationsDbUseCase,
+    ssh: SavedStateHandle
 ) : BaseMainVM() {
+
+    private val _locationDto: LocationDto? = ssh.get<LocationDto>("location_dto")
 
     private var _zoom: Float? = null
     private var _azimuth: Float? = null
@@ -42,6 +50,9 @@ class MapScreenVM @Inject constructor(
     private val _centerPinDropLiveData = SingleLiveEvent<Pair<Point, GeoObjectLocation>>()
     val centerPinDropLiveData: LiveData<Pair<Point, GeoObjectLocation>> = _centerPinDropLiveData
 
+    private val _bookmarkLiveData = SingleLiveEvent<LocationDto>()
+    val bookmarkLiveData: LiveData<LocationDto> = _bookmarkLiveData
+
     val zoom: Float?
         get() = _zoom
 
@@ -62,6 +73,12 @@ class MapScreenVM @Inject constructor(
 
     val isOpenDialog: Boolean
         get() = _isOpenDialog
+
+    init {
+        _locationDto?.let {
+            _bookmarkLiveData.value = it
+        }
+    }
 
     fun setZoom(zoom: Float?) {
         this._zoom = zoom
@@ -160,7 +177,8 @@ class MapScreenVM @Inject constructor(
                                     name = name,
                                     address = data,
                                     rating = null,
-                                    reviews = null
+                                    reviews = null,
+                                    point = point
                                 )
                                 setPlaceMark(point, geoObjectLocation)
                                 _createPinLiveData.value = Pair(point, geoObjectLocation)
@@ -171,7 +189,8 @@ class MapScreenVM @Inject constructor(
                                     name = name,
                                     address = data,
                                     rating = null,
-                                    reviews = null
+                                    reviews = null,
+                                    point = point
                                 )
                                 _centerPinDropLiveData.value = Pair(point, geoObjectLocation)
                             }
@@ -205,13 +224,19 @@ class MapScreenVM @Inject constructor(
         job?.cancel()
     }
 
-    fun setOpenDialogTrue() {
-        if (!_isOpenDialog) {
-            _isOpenDialog = true
+    fun isCenterPinActive(): Boolean = _placeMark == null && _selectedGeoObject == null
+
+    fun saveToBookmarks(geoObjectLocation: GeoObjectLocation) {
+        launchVM {
+            val locationDto = LocationDto(
+                name = geoObjectLocation.name,
+                street = geoObjectLocation.address,
+                lat = geoObjectLocation.point?.latitude,
+                lon = geoObjectLocation.point?.longitude
+            )
+            insertLocationsDbUseCase.invoke(listOf(locationDto))
         }
     }
-
-    fun isCenterPinActive(): Boolean = _placeMark == null && _selectedGeoObject == null
 
     enum class SelectionType {
         GEO_OBJECT,

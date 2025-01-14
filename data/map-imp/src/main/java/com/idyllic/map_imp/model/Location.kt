@@ -1,4 +1,4 @@
-package com.idyllic.map_imp
+package com.idyllic.map_imp.model
 
 import androidx.annotation.Keep
 import com.idyllic.map_api.model.LocationDto

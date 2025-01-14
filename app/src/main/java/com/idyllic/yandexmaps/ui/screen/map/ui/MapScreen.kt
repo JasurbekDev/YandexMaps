@@ -12,8 +12,8 @@ import com.idyllic.common.dialog.DialogUtil
 import com.idyllic.core.ktx.backPressedScreen
 import com.idyllic.core.ktx.gone
 import com.idyllic.core.ktx.timber
-import com.idyllic.core.ktx.toast
 import com.idyllic.core.ktx.visible
+import com.idyllic.map_api.model.LocationDto
 import com.idyllic.yandexmaps.R
 import com.idyllic.yandexmaps.base.BaseMainFragment
 import com.idyllic.yandexmaps.databinding.ScreenMapBinding
@@ -141,7 +141,8 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
                 locationDialog?.setGeoObjectLocation(geoObjectLocation)
             } else {
                 if (showDialog) {
-                    locationDialog = LocationDialogInteractable.newInstance(geoObjectLocation, bookmarkListener)
+                    locationDialog =
+                        LocationDialogInteractable.newInstance(geoObjectLocation, bookmarkListener)
                     locationDialog?.show(childFragmentManager)
                 }
             }
@@ -151,7 +152,8 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
     private val bookmarkListener: (GeoObjectLocation) -> Unit = { geoObjectLocation ->
         DialogUtil.bookmarkDialog(requireContext(), geoObjectLocation.name ?: "",
             { dialog ->
-                toast("yes")
+                viewModel.saveToBookmarks(geoObjectLocation)
+                dialog.dismiss()
             },
             { dialog ->
                 dialog.dismiss()
@@ -178,6 +180,7 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
             selectGeoObjectLiveData.observe(viewLifecycleOwner, selectGeoObjectObserver)
             createPinLiveData.observe(viewLifecycleOwner, createPinObserver)
             centerPinDropLiveData.observe(viewLifecycleOwner, centerPinDropObserver)
+            bookmarkLiveData.observe(viewLifecycleOwner, bookmarkObserver)
         }
 
         viewModel.placeMark?.let {
@@ -222,6 +225,19 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
 
     private val centerPinDropObserver = Observer<Pair<Point, GeoObjectLocation>> {
         showLocationDialog(it.second)
+    }
+
+    private val bookmarkObserver = Observer<LocationDto> { locationDto ->
+        map?.mapObjects?.clear()
+        placeMark = null
+        deselectGeoObject()
+        val name = locationDto.name
+        val metadata = GeoObjectSelectionMetadata("", "", "", null)
+        locationDto.lat?.let { lat ->
+            locationDto.lon?.let { lon ->
+                viewModel.selectGeoObject(metadata, Point(lat, lon), name ?: "")
+            }
+        }
     }
 
     private fun initMap() {

@@ -47,6 +47,7 @@ dependencies {
     implementation(project(":common:ui-module"))
     implementation(project(":core"))
     implementation(project(":data:core-imp"))
+    implementation(project(":domain:map-api"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)

@@ -53,6 +53,11 @@ dependencies {
     kspAndroidTest(libs.bundles.common.ui.ksp.android.test)
     androidTestImplementation(libs.bundles.common.ui.android.test.implementation)
 
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
     // Yandex.Maps
     implementation(libs.yandex.maps)
 }
