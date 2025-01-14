@@ -26,16 +26,15 @@ class MapScreenVM @Inject constructor(
     private var _azimuth: Float? = null
     private var _tilt: Float? = null
     private var _mapCenter: Point? = null
-    private var _placeMarkGeometry: Pair<Point, GeoObjectLocation>? = null
+    private var _placeMark: Pair<Point, GeoObjectLocation>? = null
     private var _selectedGeoObject: Pair<GeoObjectSelectionMetadata, GeoObjectLocation>? = null
     private var job: Job? = null
     private var _isOpenDialog: Boolean = false
 
-    private val _locationDialogLiveData = SingleLiveEvent<Point?>()
-    val locationDialogLiveData: LiveData<Point?> = _locationDialogLiveData
-
-    private val _selectGeoObjectLiveData = SingleLiveEvent<Pair<GeoObjectSelectionMetadata, GeoObjectLocation>>()
-    val selectGeoObjectLiveData: LiveData<Pair<GeoObjectSelectionMetadata, GeoObjectLocation>> = _selectGeoObjectLiveData
+    private val _selectGeoObjectLiveData =
+        SingleLiveEvent<Pair<GeoObjectSelectionMetadata, GeoObjectLocation>>()
+    val selectGeoObjectLiveData: LiveData<Pair<GeoObjectSelectionMetadata, GeoObjectLocation>> =
+        _selectGeoObjectLiveData
 
     private val _createPinLiveData = SingleLiveEvent<Pair<Point, GeoObjectLocation>>()
     val createPinLiveData: LiveData<Pair<Point, GeoObjectLocation>> = _createPinLiveData
@@ -55,8 +54,8 @@ class MapScreenVM @Inject constructor(
     val mapCenter: Point?
         get() = _mapCenter
 
-    val placeMarkGeometry: Pair<Point, GeoObjectLocation>?
-        get() = _placeMarkGeometry
+    val placeMark: Pair<Point, GeoObjectLocation>?
+        get() = _placeMark
 
     val selectedGeoObject: Pair<GeoObjectSelectionMetadata, GeoObjectLocation>?
         get() = _selectedGeoObject
@@ -80,15 +79,18 @@ class MapScreenVM @Inject constructor(
         this._mapCenter = mapCenter
     }
 
-    private fun setPlaceMarkGeometry(point: Point, geoObjectLocation: GeoObjectLocation) {
-        this._placeMarkGeometry = Pair(point, geoObjectLocation)
+    fun setPlaceMark(point: Point, geoObjectLocation: GeoObjectLocation) {
+        this._placeMark = Pair(point, geoObjectLocation)
     }
 
     fun clearPlaceMark() {
-        _placeMarkGeometry = null
+        _placeMark = null
     }
 
-    fun setSelectedGeoObject(selectedGeoObjectMetadata: GeoObjectSelectionMetadata?, geoObjectLocation: GeoObjectLocation?) {
+    fun setSelectedGeoObject(
+        selectedGeoObjectMetadata: GeoObjectSelectionMetadata?,
+        geoObjectLocation: GeoObjectLocation?
+    ) {
         if (selectedGeoObjectMetadata == null || geoObjectLocation == null) {
             this._selectedGeoObject = null
             return
@@ -97,7 +99,7 @@ class MapScreenVM @Inject constructor(
     }
 
     fun selectGeoObject(metadata: GeoObjectSelectionMetadata, point: Point, name: String) {
-        _placeMarkGeometry = null
+        _placeMark = null
         getFullAddress(point, SelectionType.GEO_OBJECT, metadata, name)
     }
 
@@ -107,13 +109,23 @@ class MapScreenVM @Inject constructor(
         getFullAddress(point, SelectionType.FIXED_PIN)
     }
 
+    fun onSearchResultSelect() {
+        _selectedGeoObject = null
+        job?.cancel()
+    }
+
     private fun dropCenterPin() {
         _mapCenter?.let { center ->
             getFullAddress(center, SelectionType.CENTER_PIN)
         }
     }
 
-    private fun getFullAddress(point: Point, selectionType: SelectionType, metadata: GeoObjectSelectionMetadata? = null, name: String? = null) {
+    private fun getFullAddress(
+        point: Point,
+        selectionType: SelectionType,
+        metadata: GeoObjectSelectionMetadata? = null,
+        name: String? = null
+    ) {
         launchVM {
             val lat = point.latitude
             val lon = point.longitude
@@ -123,6 +135,7 @@ class MapScreenVM @Inject constructor(
                     is ResourceUI.Error -> {
                         globalError(it.error)
                     }
+
                     is ResourceUI.Success -> {
                         val data = it.data
 
@@ -132,12 +145,13 @@ class MapScreenVM @Inject constructor(
                                     val geoObjectLocation = GeoObjectLocation(
                                         name = name,
                                         address = data,
-                                        rating = getRandomNumberForString(metadata.objectId, 0..5),
-                                        reviews = getRandomNumberForString(name ?: "", 0..999),
+                                        rating = getRandomNumberForString(name ?: "", 0..5),
+                                        reviews = getRandomNumberForString(data, 0..999),
                                         point = point
                                     )
                                     setSelectedGeoObject(metadata, geoObjectLocation)
-                                    _selectGeoObjectLiveData.value = Pair(metadata, geoObjectLocation)
+                                    _selectGeoObjectLiveData.value =
+                                        Pair(metadata, geoObjectLocation)
                                 }
                             }
 
@@ -148,7 +162,7 @@ class MapScreenVM @Inject constructor(
                                     rating = null,
                                     reviews = null
                                 )
-                                setPlaceMarkGeometry(point, geoObjectLocation)
+                                setPlaceMark(point, geoObjectLocation)
                                 _createPinLiveData.value = Pair(point, geoObjectLocation)
                             }
 
@@ -197,7 +211,7 @@ class MapScreenVM @Inject constructor(
         }
     }
 
-    fun isCenterPinActive(): Boolean = _placeMarkGeometry == null && _selectedGeoObject == null
+    fun isCenterPinActive(): Boolean = _placeMark == null && _selectedGeoObject == null
 
     enum class SelectionType {
         GEO_OBJECT,

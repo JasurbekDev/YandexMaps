@@ -15,7 +15,8 @@ class SearchLocationAdapter(private val listener: Callback) : SuperListAdapter<L
         val binding = ItemLocationBinding.bind(view)
         binding.textName.text = t.name
         binding.textStreet.text = t.street
-        binding.textDistance.text = t.distance
+        binding.textDistance.text =
+            view.context.getString(com.idyllic.ui_module.R.string.lbl_meter, t.distance.toString())
         binding.root.setOnClickListener {
             listener.selectItem(t)
         }

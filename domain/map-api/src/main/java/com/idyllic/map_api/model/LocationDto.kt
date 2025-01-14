@@ -5,5 +5,7 @@ import java.io.Serializable
 data class LocationDto(
     var name     : String? = null,
     var street   : String? = null,
-    var distance : String? = null
+    var distance : Int?    = null,
+    var lat      : Double? = null,
+    var lon      : Double? = null
 ) : Serializable

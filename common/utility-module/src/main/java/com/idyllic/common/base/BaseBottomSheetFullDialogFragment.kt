@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.idyllic.common.util.dpToPx
 
 abstract class BaseBottomSheetFullDialogFragment(@LayoutRes private val contentLayoutId: Int) :
     BottomSheetDialogFragment() {
@@ -55,7 +56,7 @@ abstract class BaseBottomSheetFullDialogFragment(@LayoutRes private val contentL
         super.onStart()
 
         dialog?.window?.apply {
-            setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            setLayout(ViewGroup.LayoutParams.MATCH_PARENT, context.dpToPx(650))
             clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL)
 
             attributes = attributes.apply {

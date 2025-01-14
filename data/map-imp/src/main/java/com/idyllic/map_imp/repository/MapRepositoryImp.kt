@@ -12,4 +12,8 @@ class MapRepositoryImp @Inject constructor(
     override suspend fun getFullAddress(lat: Double, lon: Double) = withContext(Dispatchers.IO) {
         mapDataSource.getFullAddress(lat, lon)
     }
+
+    override suspend fun searchByText(query: String, lat: Double, lon: Double) = withContext(Dispatchers.Main) {
+        mapDataSource.searchByText(query, lat, lon)
+    }
 }

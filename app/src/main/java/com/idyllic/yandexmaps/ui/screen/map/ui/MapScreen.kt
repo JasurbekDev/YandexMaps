@@ -32,12 +32,6 @@ import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.map.Map.CameraCallback
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.map.PlacemarkMapObject
-import com.yandex.mapkit.search.Response
-import com.yandex.mapkit.search.SearchFactory
-import com.yandex.mapkit.search.SearchManagerType
-import com.yandex.mapkit.search.SearchOptions
-import com.yandex.mapkit.search.Session.SearchListener
-import com.yandex.runtime.Error
 import com.yandex.runtime.image.ImageProvider
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -120,58 +114,38 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         return@GeoObjectTapListener false
     }
 
-    private fun getAddressOf(point: Point): String {
-        val searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
-        var fullAddress = ""
-        searchManager.submit(
-            point,
-            0,
-            SearchOptions(),
-            object : SearchListener {
-                override fun onSearchResponse(response: Response) {
-                    val address = response.collection.children.firstOrNull()?.obj?.name
-                    val desc = response.collection.children.firstOrNull()?.obj?.descriptionText ?: ""
-
-                    val descParts = desc.split(",").map { it.trim() }.reversed()
-                    val descWithoutLast = if (descParts.size > 1) descParts.drop(1).joinToString(", ") else ""
-
-                    fullAddress = if (descWithoutLast.isNotEmpty()) "$descWithoutLast, $address" else address ?: ""
-                }
-
-                override fun onSearchError(error: Error) {
-                    Timber.e("ReverseGeocoding", "Error: $error")
-                }
-
-            }
-        )
-        return fullAddress
-    }
-
-    private fun selectGeoObject(selectionMetadata: GeoObjectSelectionMetadata, geoObjectLocation: GeoObjectLocation) {
+    private fun selectGeoObject(
+        selectionMetadata: GeoObjectSelectionMetadata,
+        geoObjectLocation: GeoObjectLocation,
+        showDialog: Boolean = true
+    ) {
         disableCenterPin()
         map?.selectGeoObject(selectionMetadata)
-        showLocationDialog(geoObjectLocation)
+        showLocationDialog(geoObjectLocation, showDialog)
     }
 
-    private fun showLocationDialog(geoObjectLocation: GeoObjectLocation? = null) {
+    private fun showLocationDialog(
+        geoObjectLocation: GeoObjectLocation? = null,
+        showDialog: Boolean = true
+    ) {
 
 
-        val existingDialog = childFragmentManager.findFragmentByTag("LocationDialogInteractable") as? LocationDialogInteractable
-        val searchLocationDialog = childFragmentManager.findFragmentByTag("SearchLocationDialog") as? SearchLocationDialog
+        val existingDialog =
+            childFragmentManager.findFragmentByTag("LocationDialogInteractable") as? LocationDialogInteractable
+        val searchLocationDialog =
+            childFragmentManager.findFragmentByTag("SearchLocationDialog") as? SearchLocationDialog
 
         if (searchLocationDialog == null || searchLocationDialog.isDetached) {
             if (existingDialog != null) {
                 locationDialog = existingDialog
                 locationDialog?.setGeoObjectLocation(geoObjectLocation)
             } else {
-                locationDialog = LocationDialogInteractable.newInstance(geoObjectLocation)
-                locationDialog?.show(childFragmentManager)
+                if (showDialog) {
+                    locationDialog = LocationDialogInteractable.newInstance(geoObjectLocation)
+                    locationDialog?.show(childFragmentManager)
+                }
             }
         }
-
-
-
-
 
 
 //        if (viewModel.isOpenDialog) {
@@ -189,7 +163,6 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
     }
 
     private fun deselectGeoObject() {
-        enableCenterPin()
         map?.deselectGeoObject()
         viewModel.setSelectedGeoObject(null, null)
     }
@@ -206,18 +179,17 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         initMap()
 
         viewModel.apply {
-            locationDialogLiveData.observe(viewLifecycleOwner, locationDialogObserver)
             selectGeoObjectLiveData.observe(viewLifecycleOwner, selectGeoObjectObserver)
             createPinLiveData.observe(viewLifecycleOwner, createPinObserver)
             centerPinDropLiveData.observe(viewLifecycleOwner, centerPinDropObserver)
         }
 
-        viewModel.placeMarkGeometry?.let {
-            createPin(it.first, it.second)
+        viewModel.placeMark?.let {
+            createPin(it.first, it.second, false)
         }
 
         viewModel.selectedGeoObject?.let { obj ->
-            selectGeoObject(obj.first, obj.second)
+            selectGeoObject(obj.first, obj.second, false)
         }
 
         backPressedScreen(true) {
@@ -231,18 +203,22 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         binding.cardSearch.setOnClickListener(this)
     }
 
-    private val locationDialogObserver = Observer<Point?> {
-        it?.let { point ->
-            val geoObjectLocation = GeoObjectLocation(
-                address = getAddressOf(point)
-            )
-            showLocationDialog(geoObjectLocation)
+    private val selectGeoObjectObserver =
+        Observer<Pair<GeoObjectSelectionMetadata, GeoObjectLocation>> {
+            if (it.first.objectId.isEmpty()) {
+                it.second.point?.let { point ->
+                    map?.mapObjects?.clear()
+//                    deselectGeoObject()
+                    disableCenterPin()
+                    createPin(point, it.second)
+                    map?.let {
+                        moveCamera(it, point)
+                    }
+                }
+            } else {
+                selectGeoObject(it.first, it.second)
+            }
         }
-    }
-
-    private val selectGeoObjectObserver = Observer<Pair<GeoObjectSelectionMetadata, GeoObjectLocation>> {
-        selectGeoObject(it.first, it.second)
-    }
 
     private val createPinObserver = Observer<Pair<Point, GeoObjectLocation>> {
         createPin(it.first, it.second)
@@ -275,7 +251,11 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         binding.imagePin.visible()
     }
 
-    private fun createPin(point: Point, geoObjectLocation: GeoObjectLocation) {
+    private fun createPin(
+        point: Point,
+        geoObjectLocation: GeoObjectLocation,
+        showDialog: Boolean = true
+    ) {
 //        clearAllPins(map)
         disableCenterPin()
 
@@ -291,8 +271,9 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
                 anchor = PointF(0.5f, 0.95f)
             }
         )
+        viewModel.setPlaceMark(point, geoObjectLocation)
         placeMark?.addTapListener(placeMarkTapListener)
-        showLocationDialog(geoObjectLocation)
+        showLocationDialog(geoObjectLocation, showDialog)
     }
 
     private fun clearAllPins(map: Map?) {
@@ -354,11 +335,23 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         viewModel.onDestroyView()
     }
 
+    private val onSearchResultClickListener: (GeoObjectLocation) -> Unit = { geoObjectLocation ->
+        geoObjectLocation.point?.let { point ->
+            map?.mapObjects?.clear()
+            placeMark = null
+            deselectGeoObject()
+            val name = geoObjectLocation.name
+            val metadata = GeoObjectSelectionMetadata("", "", "", null)
+            viewModel.selectGeoObject(metadata, point, name ?: "")
+        }
+    }
+
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.card_search -> {
                 viewModel.onSearchDialogOpen()
-                SearchLocationDialog.newInstance().show(childFragmentManager)
+                SearchLocationDialog.newInstance(onSearchResultClickListener)
+                    .show(childFragmentManager)
             }
         }
     }

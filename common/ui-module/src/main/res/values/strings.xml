@@ -24,4 +24,5 @@
     <string name="lbl_pin">Pin</string>
     <string name="lbl_search">Поиск</string>
     <string name="lbl_add_to_bookmarks">Добавить в избранное</string>
+    <string name="lbl_meter">%1$s m</string>
 </resources>
