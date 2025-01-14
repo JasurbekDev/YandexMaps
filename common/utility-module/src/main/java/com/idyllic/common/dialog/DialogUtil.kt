@@ -51,6 +51,10 @@ object DialogUtil {
     ): Dialog {
         return SuccessDialog(context, title, massage, isCancelable, listener)
     }
+
+    fun bookmarkDialog(context: Context, massage: String, yesListener: (Dialog) -> Unit, noListener: (Dialog) -> Unit): Dialog {
+        return BookmarkDialog(context, massage, yesListener, noListener)
+    }
 }
 
 fun Fragment.inputDialog(title: String, input: (String) -> Unit) {

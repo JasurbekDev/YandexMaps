@@ -8,9 +8,11 @@ import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import by.kirich1409.viewbindingdelegate.viewBinding
+import com.idyllic.common.dialog.DialogUtil
 import com.idyllic.core.ktx.backPressedScreen
 import com.idyllic.core.ktx.gone
 import com.idyllic.core.ktx.timber
+import com.idyllic.core.ktx.toast
 import com.idyllic.core.ktx.visible
 import com.idyllic.yandexmaps.R
 import com.idyllic.yandexmaps.base.BaseMainFragment
@@ -128,8 +130,6 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         geoObjectLocation: GeoObjectLocation? = null,
         showDialog: Boolean = true
     ) {
-
-
         val existingDialog =
             childFragmentManager.findFragmentByTag("LocationDialogInteractable") as? LocationDialogInteractable
         val searchLocationDialog =
@@ -141,25 +141,21 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
                 locationDialog?.setGeoObjectLocation(geoObjectLocation)
             } else {
                 if (showDialog) {
-                    locationDialog = LocationDialogInteractable.newInstance(geoObjectLocation)
+                    locationDialog = LocationDialogInteractable.newInstance(geoObjectLocation, bookmarkListener)
                     locationDialog?.show(childFragmentManager)
                 }
             }
         }
+    }
 
-
-//        if (viewModel.isOpenDialog) {
-//            if (locationDialog == null) {
-//                locationDialog = LocationDialog.newInstance(geoObjectLocation)
-//                locationDialog?.show(childFragmentManager)
-//            } else {
-//                locationDialog?.setGeoObjectLocation(geoObjectLocation)
-//                locationDialog?.show(childFragmentManager)
-//            }
-//        } else {
-//            locationDialog?.setGeoObjectLocation(geoObjectLocation)
-//            viewModel.setOpenDialogTrue()
-//        }
+    private val bookmarkListener: (GeoObjectLocation) -> Unit = { geoObjectLocation ->
+        DialogUtil.bookmarkDialog(requireContext(), geoObjectLocation.name ?: "",
+            { dialog ->
+                toast("yes")
+            },
+            { dialog ->
+                dialog.dismiss()
+            }).show()
     }
 
     private fun deselectGeoObject() {
@@ -284,16 +280,6 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         enableCenterPin()
     }
 
-    private fun addPlaceMarkAtPosition(position: Point) {
-        val imageProvider =
-            ImageProvider.fromResource(context, com.idyllic.ui_module.R.drawable.ic_pin)
-        val mapObjects = map?.mapObjects
-        placeMark = mapObjects?.addPlacemark()?.apply {
-            geometry = position
-            setIcon(imageProvider)
-        }
-    }
-
     override fun onCameraPositionChanged(
         map: Map,
         cameraPosition: CameraPosition,
@@ -312,10 +298,6 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
                 viewModel.onCameraPositionChangedFinish()
             }
         }
-    }
-
-    private fun updatePinPosition(position: Point) {
-        placeMark?.geometry = position
     }
 
     override fun onStart() {

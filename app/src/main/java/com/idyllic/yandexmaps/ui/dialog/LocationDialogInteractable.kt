@@ -8,6 +8,7 @@ import com.idyllic.common.util.customGetSerializable
 import com.idyllic.core.ktx.gone
 import com.idyllic.core.ktx.timber
 import com.idyllic.core.ktx.visible
+import com.idyllic.map_api.model.LocationDto
 import com.idyllic.yandexmaps.R
 import com.idyllic.yandexmaps.databinding.DialogLocationBinding
 import com.idyllic.yandexmaps.models.GeoObjectLocation
@@ -18,7 +19,7 @@ class LocationDialogInteractable : BaseInteractableBottomSheetDialogFragment(R.l
 
     private var geoObjectLocation: GeoObjectLocation? = null
     private var binding: DialogLocationBinding? = null
-    private var listener: Callback? = null
+    private var bookmarkListener: (GeoObjectLocation) -> Unit = {}
 
     private var imageStar1: AppCompatImageView? = null
     private var imageStar2: AppCompatImageView? = null
@@ -46,6 +47,12 @@ class LocationDialogInteractable : BaseInteractableBottomSheetDialogFragment(R.l
 
         binding?.btnClose?.setOnClickListener {
             dismiss()
+        }
+
+        binding?.btnAddToBookmarks?.setOnClickListener {
+            geoObjectLocation?.let {
+                bookmarkListener.invoke(it)
+            }
         }
     }
 
@@ -124,16 +131,14 @@ class LocationDialogInteractable : BaseInteractableBottomSheetDialogFragment(R.l
     companion object Factory {
         @JvmStatic
         fun newInstance(
-            geoObjectLocation: GeoObjectLocation?
+            geoObjectLocation: GeoObjectLocation?,
+            bookmarkListener: (GeoObjectLocation) -> Unit
         ): LocationDialogInteractable = LocationDialogInteractable().apply {
+            this.bookmarkListener = bookmarkListener
             arguments = Bundle().apply {
                 putSerializable(KEY_GEO_OBJECT_LOCATION, geoObjectLocation)
             }
         }
-    }
-
-    interface Callback {
-        fun dismiss()
     }
 
 }
