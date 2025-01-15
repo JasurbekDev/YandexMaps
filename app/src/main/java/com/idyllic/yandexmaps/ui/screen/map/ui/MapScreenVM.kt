@@ -117,8 +117,14 @@ class MapScreenVM @Inject constructor(
         this._selectedGeoObject = Pair(selectedGeoObjectMetadata, geoObjectLocation)
     }
 
-    fun selectGeoObject(metadata: GeoObjectSelectionMetadata, point: Point, name: String) {
+    fun selectGeoObject(metadata: GeoObjectSelectionMetadata, point: Point, name: String, geoObjectLocation: GeoObjectLocation? = null) {
         _placeMark = null
+        geoObjectLocation?.let {
+            setSelectedGeoObject(metadata, geoObjectLocation)
+            _selectGeoObjectLiveData.value =
+                Pair(metadata, geoObjectLocation)
+            return
+        }
         getFullAddress(point, SelectionType.GEO_OBJECT, metadata, name)
     }
 

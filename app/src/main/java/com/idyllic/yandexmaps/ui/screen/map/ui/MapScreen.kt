@@ -340,7 +340,7 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
             deselectGeoObject()
             val name = geoObjectLocation.name
             val metadata = GeoObjectSelectionMetadata("", "", "", null)
-            viewModel.selectGeoObject(metadata, point, name ?: "")
+            viewModel.selectGeoObject(metadata, point, name ?: "", geoObjectLocation)
         }
     }
 
