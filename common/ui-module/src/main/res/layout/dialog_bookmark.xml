@@ -41,26 +41,28 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dp_16">
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/btn_cancel"
                 style="@style/Title.Medium"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/dp_8"
                 android:layout_weight="1"
-                android:backgroundTint="@android:color/transparent"
-                android:text="Отмена"
+                android:gravity="center"
+                android:paddingVertical="@dimen/dp_12"
+                android:text="@string/lbl_cancel"
                 android:textColor="@color/light_red"
                 android:textSize="@dimen/dp_16" />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/btn_confirm"
                 style="@style/Title.Medium"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:backgroundTint="@android:color/transparent"
-                android:text="Подтвердить"
+                android:gravity="center"
+                android:paddingVertical="@dimen/dp_12"
+                android:text="@string/lbl_confirm"
                 android:textSize="@dimen/dp_16" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>

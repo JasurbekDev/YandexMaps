@@ -25,9 +25,6 @@ class BookmarkAdapter(private val listener: Callback) : SuperListAdapter<Locatio
             binding.textStreet.text = t.street
         }
 
-        if (adapterPosition == itemCount - 1) {
-            binding.space.visible()
-        }
         binding.cardBookmark.setOnClickListener {
             listener.selectItem(t)
         }

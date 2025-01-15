@@ -64,10 +64,4 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <Space
-        android:id="@+id/space"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_16"
-        android:visibility="gone" />
-
 </androidx.appcompat.widget.LinearLayoutCompat>

@@ -13,7 +13,6 @@
         android:layout_height="@dimen/dp_0"
         app:defaultNavHost="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="@dimen/dp_70"
         app:layout_constraintTop_toTopOf="parent"
         app:navGraph="@navigation/home_nav" />
 

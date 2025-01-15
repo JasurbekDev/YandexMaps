@@ -77,6 +77,8 @@ class MapScreenVM @Inject constructor(
     init {
         _locationDto?.let {
             _bookmarkLiveData.value = it
+            _placeMark = null
+            _selectedGeoObject = null
         }
     }
 
