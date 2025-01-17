@@ -12,7 +12,9 @@ data class LocationEntry(
     @ColumnInfo("street"   ) var street   : String? = null,
     @ColumnInfo("distance" ) var distance : Int?    = null,
     @ColumnInfo("lat"      ) var lat      : Double? = null,
-    @ColumnInfo("lon"      ) var lon      : Double? = null
+    @ColumnInfo("lon"      ) var lon      : Double? = null,
+    @ColumnInfo("rating"   ) var rating   : Int?    = null,
+    @ColumnInfo("reviews"  ) var reviews  : Int?    = null
 ) {
     constructor(dto: LocationDto) : this(
         0,
@@ -20,7 +22,9 @@ data class LocationEntry(
         dto.street,
         dto.distance,
         dto.lat,
-        dto.lon
+        dto.lon,
+        dto.rating,
+        dto.reviews
     )
 
     fun toDto() = LocationDto(
@@ -28,6 +32,8 @@ data class LocationEntry(
         street,
         distance,
         lat,
-        lon
+        lon,
+        rating,
+        reviews
     )
 }

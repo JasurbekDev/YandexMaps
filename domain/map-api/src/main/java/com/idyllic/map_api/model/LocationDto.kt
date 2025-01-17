@@ -7,5 +7,7 @@ data class LocationDto(
     var street   : String? = null,
     var distance : Int?    = null,
     var lat      : Double? = null,
-    var lon      : Double? = null
+    var lon      : Double? = null,
+    var rating   : Int?    = null,
+    var reviews  : Int?    = null
 ) : Serializable

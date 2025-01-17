@@ -37,7 +37,6 @@ class MapScreenVM @Inject constructor(
     private var _placeMark: Pair<Point, GeoObjectLocation>? = null
     private var _selectedGeoObject: Pair<GeoObjectSelectionMetadata, GeoObjectLocation>? = null
     private var job: Job? = null
-    private var _isOpenDialog: Boolean = false
 
     private val _selectGeoObjectLiveData =
         SingleLiveEvent<Pair<GeoObjectSelectionMetadata, GeoObjectLocation>>()
@@ -70,9 +69,6 @@ class MapScreenVM @Inject constructor(
 
     val selectedGeoObject: Pair<GeoObjectSelectionMetadata, GeoObjectLocation>?
         get() = _selectedGeoObject
-
-    val isOpenDialog: Boolean
-        get() = _isOpenDialog
 
     init {
         _locationDto?.let {
@@ -117,7 +113,12 @@ class MapScreenVM @Inject constructor(
         this._selectedGeoObject = Pair(selectedGeoObjectMetadata, geoObjectLocation)
     }
 
-    fun selectGeoObject(metadata: GeoObjectSelectionMetadata, point: Point, name: String, geoObjectLocation: GeoObjectLocation? = null) {
+    fun selectGeoObject(
+        metadata: GeoObjectSelectionMetadata,
+        point: Point,
+        name: String,
+        geoObjectLocation: GeoObjectLocation? = null
+    ) {
         _placeMark = null
         geoObjectLocation?.let {
             setSelectedGeoObject(metadata, geoObjectLocation)
@@ -224,7 +225,6 @@ class MapScreenVM @Inject constructor(
     }
 
     fun onDestroyView() {
-        _isOpenDialog = false
         job?.cancel()
     }
 
@@ -240,7 +240,9 @@ class MapScreenVM @Inject constructor(
                 name = geoObjectLocation.name,
                 street = geoObjectLocation.address,
                 lat = geoObjectLocation.point?.latitude,
-                lon = geoObjectLocation.point?.longitude
+                lon = geoObjectLocation.point?.longitude,
+                rating = geoObjectLocation.rating,
+                reviews = geoObjectLocation.reviews
             )
             insertLocationsDbUseCase.invoke(listOf(locationDto))
         }

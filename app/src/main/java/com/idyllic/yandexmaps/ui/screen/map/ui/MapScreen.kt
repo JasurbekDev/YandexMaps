@@ -228,6 +228,7 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
     }
 
     private val bookmarkObserver = Observer<LocationDto> { locationDto ->
+        timber("YYY in bookmark observer: $locationDto")
         map?.mapObjects?.clear()
         placeMark = null
         deselectGeoObject()
@@ -235,7 +236,14 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
         val metadata = GeoObjectSelectionMetadata("", "", "", null)
         locationDto.lat?.let { lat ->
             locationDto.lon?.let { lon ->
-                viewModel.selectGeoObject(metadata, Point(lat, lon), name ?: "")
+                val geoObjectLocation = GeoObjectLocation(
+                    name = locationDto.name,
+                    address = locationDto.street,
+                    point = Point(lat, lon),
+                    rating = locationDto.rating,
+                    reviews = locationDto.reviews
+                )
+                viewModel.selectGeoObject(metadata, Point(lat, lon), name ?: "", geoObjectLocation)
             }
         }
     }
