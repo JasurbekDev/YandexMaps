@@ -14,7 +14,6 @@ import com.idyllic.yandexmaps.R
 import com.idyllic.yandexmaps.databinding.DialogSearchLocationBinding
 import com.idyllic.yandexmaps.models.GeoObjectLocation
 import com.idyllic.yandexmaps.ui.adapter.list.SearchLocationAdapter
-import com.yandex.mapkit.geometry.Point
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -82,7 +81,8 @@ class SearchLocationDialog : BaseBottomSheetFullDialogFragment(R.layout.dialog_s
                 val geoObjectLocation = GeoObjectLocation(
                     name = t.name,
                     address = t.street,
-                    point = Point(lat, lon)
+                    lat = lat,
+                    lon = lon
                 )
                 listener.invoke(geoObjectLocation)
             }

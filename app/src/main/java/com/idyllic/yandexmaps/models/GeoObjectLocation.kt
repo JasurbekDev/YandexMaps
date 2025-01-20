@@ -9,5 +9,6 @@ data class GeoObjectLocation(
     var address  : String? = null,
     var rating   : Int?    = null,
     var reviews  : Int?    = null,
-    var point    : Point?  = null
+    var lat      : Double? = null,
+    var lon      : Double? = null
 ) : Serializable

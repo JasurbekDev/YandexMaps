@@ -2,6 +2,8 @@ package com.idyllic.yandexmaps.ui.screen.map.ui
 
 import android.graphics.PointF
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -39,13 +41,18 @@ import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
 @AndroidEntryPoint
-class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, CameraListener {
+class MapScreen() : BaseMainFragment(R.layout.screen_map), View.OnClickListener, CameraListener,
+    LocationDialogInteractable.Callback {
     override val viewModel: MapScreenVM by viewModels()
     private val binding by viewBinding(ScreenMapBinding::bind)
     private var mainNavigation: NavController? = null
     private var map: Map? = null
     private var placeMark: PlacemarkMapObject? = null
     private var locationDialog: LocationDialogInteractable? = null
+
+    constructor(parcel: Parcel) : this() {
+
+    }
 
     private val placeMarkTapListener = MapObjectTapListener { mapObject, point ->
         try {
@@ -142,22 +149,11 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
             } else {
                 if (showDialog) {
                     locationDialog =
-                        LocationDialogInteractable.newInstance(geoObjectLocation, bookmarkListener)
+                        LocationDialogInteractable.newInstance(geoObjectLocation, this)
                     locationDialog?.show(childFragmentManager)
                 }
             }
         }
-    }
-
-    private val bookmarkListener: (GeoObjectLocation) -> Unit = { geoObjectLocation ->
-        DialogUtil.bookmarkDialog(requireContext(), geoObjectLocation.name ?: "",
-            { dialog ->
-                viewModel.saveToBookmarks(geoObjectLocation)
-                dialog.dismiss()
-            },
-            { dialog ->
-                dialog.dismiss()
-            }).show()
     }
 
     private fun deselectGeoObject() {
@@ -205,13 +201,15 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
     private val selectGeoObjectObserver =
         Observer<Pair<GeoObjectSelectionMetadata, GeoObjectLocation>> {
             if (it.first.objectId.isEmpty()) {
-                it.second.point?.let { point ->
-                    map?.mapObjects?.clear()
+                it.second.lat?.let { lat ->
+                    it.second.lon?.let { lon ->
+                        map?.mapObjects?.clear()
 //                    deselectGeoObject()
-                    disableCenterPin()
-                    createPin(point, it.second)
-                    map?.let {
-                        moveCamera(it, point)
+                        disableCenterPin()
+                        createPin(Point(lat, lon), it.second)
+                        map?.let {
+                            moveCamera(it, Point(lat, lon))
+                        }
                     }
                 }
             } else {
@@ -239,7 +237,8 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
                 val geoObjectLocation = GeoObjectLocation(
                     name = locationDto.name,
                     address = locationDto.street,
-                    point = Point(lat, lon),
+                    lat = lat,
+                    lon = lon,
                     rating = locationDto.rating,
                     reviews = locationDto.reviews
                 )
@@ -342,13 +341,15 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
     }
 
     private val onSearchResultClickListener: (GeoObjectLocation) -> Unit = { geoObjectLocation ->
-        geoObjectLocation.point?.let { point ->
-            map?.mapObjects?.clear()
-            placeMark = null
-            deselectGeoObject()
-            val name = geoObjectLocation.name
-            val metadata = GeoObjectSelectionMetadata("", "", "", null)
-            viewModel.selectGeoObject(metadata, point, name ?: "", geoObjectLocation)
+        geoObjectLocation.lat?.let { lat ->
+            geoObjectLocation.lon?.let { lon ->
+                map?.mapObjects?.clear()
+                placeMark = null
+                deselectGeoObject()
+                val name = geoObjectLocation.name
+                val metadata = GeoObjectSelectionMetadata("", "", "", null)
+                viewModel.selectGeoObject(metadata, Point(lat, lon), name ?: "", geoObjectLocation)
+            }
         }
     }
 
@@ -359,6 +360,37 @@ class MapScreen : BaseMainFragment(R.layout.screen_map), View.OnClickListener, C
                 SearchLocationDialog.newInstance(onSearchResultClickListener)
                     .show(childFragmentManager)
             }
+        }
+    }
+
+    override fun onBookmarkClick(
+        geoObjectLocation: GeoObjectLocation
+    ) {
+        DialogUtil.bookmarkDialog(requireContext(), geoObjectLocation.name ?: "",
+            { dialog ->
+                viewModel.saveToBookmarks(geoObjectLocation)
+                dialog.dismiss()
+            },
+            { dialog ->
+                dialog.dismiss()
+            }).show()
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    override fun writeToParcel(p0: Parcel, p1: Int) {
+        p0.writeInt(p1)
+    }
+
+    companion object CREATOR : Parcelable.Creator<MapScreen> {
+        override fun createFromParcel(parcel: Parcel): MapScreen {
+            return MapScreen(parcel)
+        }
+
+        override fun newArray(size: Int): Array<MapScreen?> {
+            return arrayOfNulls(size)
         }
     }
 }

@@ -173,7 +173,8 @@ class MapScreenVM @Inject constructor(
                                         address = data,
                                         rating = getRandomNumberForString(name ?: "", 0..5),
                                         reviews = getRandomNumberForString(data, 0..999),
-                                        point = point
+                                        lat = point.latitude,
+                                        lon = point.longitude
                                     )
                                     setSelectedGeoObject(metadata, geoObjectLocation)
                                     _selectGeoObjectLiveData.value =
@@ -187,7 +188,8 @@ class MapScreenVM @Inject constructor(
                                     address = data,
                                     rating = null,
                                     reviews = null,
-                                    point = point
+                                    lat = point.latitude,
+                                    lon = point.longitude
                                 )
                                 setPlaceMark(point, geoObjectLocation)
                                 _createPinLiveData.value = Pair(point, geoObjectLocation)
@@ -199,7 +201,8 @@ class MapScreenVM @Inject constructor(
                                     address = data,
                                     rating = null,
                                     reviews = null,
-                                    point = point
+                                    lat = point.latitude,
+                                    lon = point.longitude
                                 )
                                 _centerPinDropLiveData.value = Pair(point, geoObjectLocation)
                             }
@@ -239,8 +242,8 @@ class MapScreenVM @Inject constructor(
             val locationDto = LocationDto(
                 name = geoObjectLocation.name,
                 street = geoObjectLocation.address,
-                lat = geoObjectLocation.point?.latitude,
-                lon = geoObjectLocation.point?.longitude,
+                lat = geoObjectLocation.lat,
+                lon = geoObjectLocation.lon,
                 rating = geoObjectLocation.rating,
                 reviews = geoObjectLocation.reviews
             )

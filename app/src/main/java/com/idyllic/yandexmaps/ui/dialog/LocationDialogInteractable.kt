@@ -1,9 +1,11 @@
 package com.idyllic.yandexmaps.ui.dialog
 
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.View
 import androidx.appcompat.widget.AppCompatImageView
 import com.idyllic.common.base.BaseInteractableBottomSheetDialogFragment
+import com.idyllic.common.util.customGetParcelable
 import com.idyllic.common.util.customGetSerializable
 import com.idyllic.core.ktx.gone
 import com.idyllic.core.ktx.timber
@@ -14,12 +16,12 @@ import com.idyllic.yandexmaps.databinding.DialogLocationBinding
 import com.idyllic.yandexmaps.models.GeoObjectLocation
 
 const val KEY_GEO_OBJECT_LOCATION = "KEY_GEO_OBJECT_LOCATION"
+const val KEY_LOCATION_DIALOG_CALLBACK = "KEY_LOCATION_DIALOG_CALLBACK"
 
 class LocationDialogInteractable : BaseInteractableBottomSheetDialogFragment(R.layout.dialog_location) {
 
     private var geoObjectLocation: GeoObjectLocation? = null
     private var binding: DialogLocationBinding? = null
-    private var bookmarkListener: (GeoObjectLocation) -> Unit = {}
 
     private var imageStar1: AppCompatImageView? = null
     private var imageStar2: AppCompatImageView? = null
@@ -29,12 +31,15 @@ class LocationDialogInteractable : BaseInteractableBottomSheetDialogFragment(R.l
 
     private val imageStarList: MutableList<AppCompatImageView?> = arrayListOf()
 
+    private var callback: Callback? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, com.idyllic.ui_module.R.style.CustomBottomSheetDialogTheme)
 
         arguments?.let {
             geoObjectLocation = it.customGetSerializable(KEY_GEO_OBJECT_LOCATION) as GeoObjectLocation?
+            callback = it.customGetParcelable(KEY_LOCATION_DIALOG_CALLBACK) as Callback?
         }
     }
 
@@ -51,7 +56,7 @@ class LocationDialogInteractable : BaseInteractableBottomSheetDialogFragment(R.l
 
         binding?.btnAddToBookmarks?.setOnClickListener {
             geoObjectLocation?.let {
-                bookmarkListener.invoke(it)
+                callback?.onBookmarkClick(it)
             }
         }
     }
@@ -132,13 +137,17 @@ class LocationDialogInteractable : BaseInteractableBottomSheetDialogFragment(R.l
         @JvmStatic
         fun newInstance(
             geoObjectLocation: GeoObjectLocation?,
-            bookmarkListener: (GeoObjectLocation) -> Unit
+            bookmarkListener: Callback
         ): LocationDialogInteractable = LocationDialogInteractable().apply {
-            this.bookmarkListener = bookmarkListener
             arguments = Bundle().apply {
                 putSerializable(KEY_GEO_OBJECT_LOCATION, geoObjectLocation)
+                putParcelable(KEY_LOCATION_DIALOG_CALLBACK, bookmarkListener)
             }
         }
+    }
+
+    interface Callback : Parcelable {
+        fun onBookmarkClick(location: GeoObjectLocation)
     }
 
 }
